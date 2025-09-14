@@ -21,6 +21,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// トリガーするイベントのデータアセット
 	UPROPERTY(EditAnywhere, Category = "Trigger")
 	UGameEventData* TriggerData;
 
@@ -29,11 +30,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	// イベントが一度発動したかどうかを管理するフラグ
+	UPROPERTY()
+	bool bIsTriggered = false;
+
+	// スイッチの状態変化にバインドする関数
 	void BindToSwitchDelegates();
+
+	// スイッチの状態が変化したときに呼び出される関数
 	UFUNCTION()
 	void OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn);
 
-	// パズルの条件を評価する関数
+	// 条件を評価して、必要ならイベントをトリガーする関数
 	bool EvaluateCondition();
 
 };

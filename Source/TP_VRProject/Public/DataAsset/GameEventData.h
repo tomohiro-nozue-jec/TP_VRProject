@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Component/SwitchComponent.h" // スイッチのタイプを使用するためにインクルード
 #include "GameEventData.generated.h"
 
 // 複数のスイッチが満たすべき条件
@@ -12,6 +13,19 @@ enum class ESwitchCondition : uint8
 {
 	AND UMETA(DisplayName = "AND (All Switches)"),
 	OR UMETA(DisplayName = "OR (Any Switch)"),
+};
+
+// スイッチと、そのタイプを関連付ける構造体
+USTRUCT(BlueprintType)
+struct FEventSwitch
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
+	TSoftObjectPtr<AActor> SwitchActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
+	ESwitchType SwitchType;
 };
 
 /**
@@ -28,11 +42,12 @@ public :
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	TArray<TSoftObjectPtr<AActor>> TargetActors;
 
-	// イベントをトリガーするスイッチのアクターへのソフト参照の配列。
+	// イベントをトリガーするスイッチの配列と、そのタイプ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	TArray<TSoftObjectPtr<AActor>> TriggerSwitches;
+	TArray<FEventSwitch> EventSwitches;
 
 	// スイッチが押されたと見なすための条件
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	ESwitchCondition SwitchCondition;
+
 };

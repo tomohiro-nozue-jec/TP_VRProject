@@ -34,15 +34,17 @@ void AAEventTrigger::Tick(float DeltaTime)
 // スイッチのデリゲートにバインドする関数
 void AAEventTrigger::BindToSwitchDelegates()
 {
-    for (const TSoftObjectPtr<AActor>& SwitchRef : TriggerData->TriggerSwitches)
+    for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
     {
-        AActor* SwitchActor = SwitchRef.Get();
+        AActor* SwitchActor = EventSwitch.SwitchActor.Get();
         if (SwitchActor)
         {
             USwitchComponent* SwitchComp = Cast<USwitchComponent>(SwitchActor->GetComponentByClass(USwitchComponent::StaticClass()));
             if (SwitchComp)
             {
                 SwitchComp->OnSwitchStateChanged.AddDynamic(this, &AAEventTrigger::OnSwitchStateChanged);
+                // データアセットで設定されたスイッチタイプをコンポーネントに渡す
+                SwitchComp->SwitchType = EventSwitch.SwitchType;
             }
         }
     }
@@ -51,8 +53,18 @@ void AAEventTrigger::BindToSwitchDelegates()
 // スイッチの状態が変わったときに呼ばれる関数
 void AAEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn)
 {
+    // イベントが既に発動済みであれば、以降の処理は行わない
+    //if (bIsTriggered)
+    //{
+    //    return;
+    //}
+
+	// 条件を評価して、必要ならイベントをトリガー
     if (EvaluateCondition())
     {
+        // 条件が満たされたら、発動済みフラグを立てて二度と発動しないようにする
+        bIsTriggered = true;
+
         // TargetActors配列をループして、それぞれのアクターを起動
         for (const TSoftObjectPtr<AActor>& TargetRef : TriggerData->TargetActors)
         {
@@ -71,31 +83,31 @@ bool AAEventTrigger::EvaluateCondition()
 
     if (TriggerData->SwitchCondition == ESwitchCondition::AND)
     {
-        for (const TSoftObjectPtr<AActor>& SwitchRef : TriggerData->TriggerSwitches)
+        for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
         {
-            AActor* SwitchActor = SwitchRef.Get();
+            AActor* SwitchActor = EventSwitch.SwitchActor.Get();
             if (!SwitchActor) continue;
             USwitchComponent* SwitchComp = Cast<USwitchComponent>(SwitchActor->GetComponentByClass(USwitchComponent::StaticClass()));
             if (SwitchComp && !SwitchComp->bIsOn)
             {
-                return false; // 1つでもOFFならAND条件は満たされない
+                return false;
             }
         }
-        return true; // 全てON
+        return true;
     }
     else if (TriggerData->SwitchCondition == ESwitchCondition::OR)
     {
-        for (const TSoftObjectPtr<AActor>& SwitchRef : TriggerData->TriggerSwitches)
+        for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
         {
-            AActor* SwitchActor = SwitchRef.Get();
+            AActor* SwitchActor = EventSwitch.SwitchActor.Get();
             if (!SwitchActor) continue;
             USwitchComponent* SwitchComp = Cast<USwitchComponent>(SwitchActor->GetComponentByClass(USwitchComponent::StaticClass()));
             if (SwitchComp && SwitchComp->bIsOn)
             {
-                return true; // 1つでもONならOR条件は満たされる
+                return true;
             }
         }
-        return false; // 全てOFF
+        return false;
     }
 
     return false;
