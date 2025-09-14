@@ -30,10 +30,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	// イベントが一度発動したかどうかを管理するフラグ
-	UPROPERTY()
-	bool bIsTriggered = false;
-
 	// スイッチの状態変化にバインドする関数
 	void BindToSwitchDelegates();
 

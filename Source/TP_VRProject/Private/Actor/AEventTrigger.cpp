@@ -53,18 +53,9 @@ void AAEventTrigger::BindToSwitchDelegates()
 // スイッチの状態が変わったときに呼ばれる関数
 void AAEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn)
 {
-    // イベントが既に発動済みであれば、以降の処理は行わない
-    //if (bIsTriggered)
-    //{
-    //    return;
-    //}
-
 	// 条件を評価して、必要ならイベントをトリガー
     if (EvaluateCondition())
     {
-        // 条件が満たされたら、発動済みフラグを立てて二度と発動しないようにする
-        bIsTriggered = true;
-
         // TargetActors配列をループして、それぞれのアクターを起動
         for (const TSoftObjectPtr<AActor>& TargetRef : TriggerData->TargetActors)
         {
