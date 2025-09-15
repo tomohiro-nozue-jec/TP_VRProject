@@ -21,15 +21,18 @@ void AEventTrigger::BeginPlay()
 
 	if (TriggerData)
 	{
-		// ターゲットアクターの状態管理マップを初期化
+		// OneShotタイプのターゲットの状態を管理するマップを初期化
 		for (const FEventTarget& EventTarget : TriggerData->EventTargets)
 		{
 			if (AActor* TargetActor = EventTarget.TargetActor.Get())
 			{
-				TargetActivationStates.Add(TargetActor, false);
+				// OneShotタイプのみマップに追加
+				if (EventTarget.TargetType == ETargetType::OneShot)
+				{
+					OneShotActivationStates.Add(TargetActor, false);
+				}
 			}
 		}
-
 		BindToSwitchDelegates();
 	}
 }
@@ -55,48 +58,32 @@ void AEventTrigger::BindToSwitchDelegates()
 // スイッチの状態が変わったときに呼ばれる関数
 void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn)
 {
-	// 条件を評価
+	// 現在のパズル条件を評価
 	bool bConditionMet = EvaluateCondition();
 
-
-	// ターゲットアクターをループ
-	for (const FEventTarget& EventTarget : TriggerData->EventTargets)
+	// 条件が満たされている場合のみ、ターゲットアクターのアクションを実行
+	if (bConditionMet)
 	{
-		if (AActor* TargetActor = EventTarget.TargetActor.Get())
+		for (const FEventTarget& EventTarget : TriggerData->EventTargets)
 		{
-			bool bCurrentState = TargetActivationStates.FindRef(TargetActor);
-			bool bNextState = bCurrentState;
-
-			switch (EventTarget.TargetType)
+			if (AActor* TargetActor = EventTarget.TargetActor.Get())
 			{
-			case ETargetType::OneShot:
-				// OneShotタイプはまだ起動していなければ、条件が満たされたら起動
-				if (!bCurrentState && bConditionMet)
+				switch (EventTarget.TargetType)
 				{
-					bNextState = true;
+				case ETargetType::EveryTime:
+					// EveryTimeタイプは、条件が満たされるたびに実行
+					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
+					break;
+				case ETargetType::OneShot:
+					// OneShotタイプは、まだ実行されていなければ実行
+					if (!OneShotActivationStates.FindRef(TargetActor))
+					{
+						IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
+						// 実行済みとしてマーク
+						OneShotActivationStates.Add(TargetActor, true);
+					}
+					break;
 				}
-				break;
-			case ETargetType::LatchOn:
-				// LatchOnタイプは、条件が満たされたらON
-				if (bConditionMet)
-				{
-					bNextState = true;
-				}
-				break;
-			case ETargetType::Toggle:
-				// Toggleタイプは、条件が変化したら状態を反転
-				bNextState = bConditionMet;
-				break;
-			}
-
-			// 状態が変更された場合のみアクションを実行
-			if (bNextState != bCurrentState)
-			{
-				if (bConditionMet)
-				{
-					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), bNextState);
-				}
-				TargetActivationStates.Add(TargetActor, bNextState);
 			}
 		}
 	}

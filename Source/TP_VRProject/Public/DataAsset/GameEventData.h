@@ -20,9 +20,8 @@ enum class ESwitchCondition : uint8
 UENUM(BlueprintType)
 enum class ETargetType : uint8
 {
-	OneShot UMETA(DisplayName = "One-shot (Once)"),
-	LatchOn UMETA(DisplayName = "Latch On (Stays On)"),
-	Toggle UMETA(DisplayName = "Toggle"),
+	EveryTime UMETA(DisplayName = "Every Time"),
+	OneShot UMETA(DisplayName = "One-Shot (Once)"),
 };
 
 // スイッチと、そのタイプを関連付ける構造体

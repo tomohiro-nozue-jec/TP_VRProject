@@ -26,9 +26,13 @@ protected:
 	UGameEventData* TriggerData;
 
 private:
-	// 各ターゲットアクターの起動状態を管理するマップ
+	// 最後に評価した条件の結果を保存する変数
 	UPROPERTY()
-	TMap<AActor*, bool> TargetActivationStates;
+	bool bLastConditionMet = false;
+
+	// 各ターゲットアクターの現在のトグル状態
+	UPROPERTY()
+	TMap<AActor*, bool> OneShotActivationStates;
 
 	// スイッチの状態変化にバインドする関数
 	void BindToSwitchDelegates();
