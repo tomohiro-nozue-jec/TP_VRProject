@@ -5,31 +5,35 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "DataAsset/GameEventData.h"
-#include "Component/SwitchComponent.h"
-#include "AEventTrigger.generated.h"
+#include "EventTrigger.generated.h"
 
 UCLASS()
-class TP_VRPROJECT_API AAEventTrigger : public AActor
+class TP_VRPROJECT_API AEventTrigger : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AAEventTrigger();
+	AEventTrigger();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+protected:
 
 	// トリガーするイベントのデータアセット
 	UPROPERTY(EditAnywhere, Category = "Trigger")
 	UGameEventData* TriggerData;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 private:
+	// 最後に評価した条件の結果を保存する変数
+	UPROPERTY()
+	bool bLastConditionMet = false;
+
+	// 各ターゲットアクターの現在のトグル状態
+	UPROPERTY()
+	TMap<AActor*, bool> OneShotActivationStates;
+
 	// スイッチの状態変化にバインドする関数
 	void BindToSwitchDelegates();
 
