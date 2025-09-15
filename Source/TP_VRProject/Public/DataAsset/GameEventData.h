@@ -15,6 +15,16 @@ enum class ESwitchCondition : uint8
 	OR UMETA(DisplayName = "OR (Any Switch)"),
 };
 
+
+// ターゲットアクターの挙動を定義するEnum
+UENUM(BlueprintType)
+enum class ETargetType : uint8
+{
+	OneShot UMETA(DisplayName = "One-shot (Once)"),
+	LatchOn UMETA(DisplayName = "Latch On (Stays On)"),
+	Toggle UMETA(DisplayName = "Toggle"),
+};
+
 // スイッチと、そのタイプを関連付ける構造体
 USTRUCT(BlueprintType)
 struct FEventSwitch
@@ -28,6 +38,20 @@ struct FEventSwitch
 	ESwitchType SwitchType;
 };
 
+// ターゲットアクターと、そのタイプを関連付ける構造体
+USTRUCT(BlueprintType)
+struct FEventTarget
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
+	TSoftObjectPtr<AActor> TargetActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
+	ETargetType TargetType;
+};
+
+
 /**
  * 
  */
@@ -40,7 +64,7 @@ public :
 	// イベントの対象となるアクターへのソフト参照。
 // ドア、宝箱、ライト、壁など、種類を問わず設定可能。
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	TArray<TSoftObjectPtr<AActor>> TargetActors;
+	TArray<FEventTarget> EventTargets;
 
 	// イベントをトリガーするスイッチの配列と、そのタイプ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
