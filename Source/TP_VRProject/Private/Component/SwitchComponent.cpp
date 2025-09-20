@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Component/SwitchComponent.h"
@@ -32,24 +32,24 @@ void USwitchComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
-// ƒXƒCƒbƒ`‚Ìó‘Ô‚ğØ‚è‘Ö‚¦‚éŠÖ”
+// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹é–¢æ•°
 void USwitchComponent::ToggleSwitch()
 {
-    // SwitchType‚É‰‚¶‚ÄƒƒWƒbƒN‚ğ•ªŠò
+    // SwitchTypeã«å¿œã˜ã¦ãƒ­ã‚¸ãƒƒã‚¯ã‚’åˆ†å²
     if (SwitchType == ESwitchType::Toggle)
     {
-        // ƒgƒOƒ‹®Fó‘Ô‚ğ”½“]
+        // ãƒˆã‚°ãƒ«å¼ï¼šçŠ¶æ…‹ã‚’åè»¢
         bIsOn = !bIsOn;
-        // ó‘Ô•ÏX‚ğ’Ê’m
+        // çŠ¶æ…‹å¤‰æ›´ã‚’é€šçŸ¥
         OnSwitchStateChanged.Broadcast(this, bIsOn);
     }
     else if (SwitchType == ESwitchType::LatchOn)
     {
-        // ƒ‰ƒbƒ`®F‚Ü‚¾ƒIƒt‚Ìê‡‚Ì‚İƒIƒ“‚É‚µA‚»‚êˆÈ~‚Íó‘Ô‚ğˆÛ
+        // ãƒ©ãƒƒãƒå¼ï¼šã¾ã ã‚ªãƒ•ã®å ´åˆã®ã¿ã‚ªãƒ³ã«ã—ã€ãã‚Œä»¥é™ã¯çŠ¶æ…‹ã‚’ç¶­æŒ
         if (!bIsOn)
         {
             bIsOn = true;
-            // ó‘Ô•ÏX‚ğ’Ê’m
+            // çŠ¶æ…‹å¤‰æ›´ã‚’é€šçŸ¥
             OnSwitchStateChanged.Broadcast(this, bIsOn);
         }
     }

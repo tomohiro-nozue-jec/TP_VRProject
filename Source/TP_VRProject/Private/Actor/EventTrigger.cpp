@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Actor/EventTrigger.h"
@@ -21,12 +21,12 @@ void AEventTrigger::BeginPlay()
 
 	if (TriggerData)
 	{
-		// OneShotƒ^ƒCƒv‚Ìƒ^[ƒQƒbƒg‚Ìó‘Ô‚ğŠÇ—‚·‚éƒ}ƒbƒv‚ğ‰Šú‰»
+		// OneShotã‚¿ã‚¤ãƒ—ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®çŠ¶æ…‹ã‚’ç®¡ç†ã™ã‚‹ãƒãƒƒãƒ—ã‚’åˆæœŸåŒ–
 		for (const FEventTarget& EventTarget : TriggerData->EventTargets)
 		{
 			if (AActor* TargetActor = EventTarget.TargetActor.Get())
 			{
-				// OneShotƒ^ƒCƒv‚Ì‚İƒ}ƒbƒv‚É’Ç‰Á
+				// OneShotã‚¿ã‚¤ãƒ—ã®ã¿ãƒãƒƒãƒ—ã«è¿½åŠ 
 				if (EventTarget.TargetType == ETargetType::OneShot)
 				{
 					OneShotActivationStates.Add(TargetActor, false);
@@ -37,7 +37,7 @@ void AEventTrigger::BeginPlay()
 	}
 }
 
-// ƒXƒCƒbƒ`‚ÌƒfƒŠƒQ[ƒg‚ÉƒoƒCƒ“ƒh‚·‚éŠÖ”
+// ã‚¹ã‚¤ãƒƒãƒã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã«ãƒã‚¤ãƒ³ãƒ‰ã™ã‚‹é–¢æ•°
 void AEventTrigger::BindToSwitchDelegates()
 {
 	for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
@@ -55,13 +55,13 @@ void AEventTrigger::BindToSwitchDelegates()
 	}
 }
 
-// ƒXƒCƒbƒ`‚Ìó‘Ô‚ª•Ï‚í‚Á‚½‚Æ‚«‚ÉŒÄ‚Î‚ê‚éŠÖ”
+// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ãŒå¤‰ã‚ã£ãŸã¨ãã«å‘¼ã°ã‚Œã‚‹é–¢æ•°
 void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn)
 {
-	// Œ»İ‚ÌƒpƒYƒ‹ğŒ‚ğ•]‰¿
+	// ç¾åœ¨ã®ãƒ‘ã‚ºãƒ«æ¡ä»¶ã‚’è©•ä¾¡
 	bool bConditionMet = EvaluateCondition();
 
-	// ğŒ‚ª–‚½‚³‚ê‚Ä‚¢‚éê‡‚Ì‚İAƒ^[ƒQƒbƒgƒAƒNƒ^[‚ÌƒAƒNƒVƒ‡ƒ“‚ğÀs
+	// æ¡ä»¶ãŒæº€ãŸã•ã‚Œã¦ã„ã‚‹å ´åˆã®ã¿ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚¢ã‚¯ã‚¿ãƒ¼ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’å®Ÿè¡Œ
 	if (bConditionMet)
 	{
 		for (const FEventTarget& EventTarget : TriggerData->EventTargets)
@@ -71,15 +71,15 @@ void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool
 				switch (EventTarget.TargetType)
 				{
 				case ETargetType::EveryTime:
-					// EveryTimeƒ^ƒCƒv‚ÍAğŒ‚ª–‚½‚³‚ê‚é‚½‚Ñ‚ÉÀs
+					// EveryTimeã‚¿ã‚¤ãƒ—ã¯ã€æ¡ä»¶ãŒæº€ãŸã•ã‚Œã‚‹ãŸã³ã«å®Ÿè¡Œ
 					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
 					break;
 				case ETargetType::OneShot:
-					// OneShotƒ^ƒCƒv‚ÍA‚Ü‚¾Às‚³‚ê‚Ä‚¢‚È‚¯‚ê‚ÎÀs
+					// OneShotã‚¿ã‚¤ãƒ—ã¯ã€ã¾ã å®Ÿè¡Œã•ã‚Œã¦ã„ãªã‘ã‚Œã°å®Ÿè¡Œ
 					if (!OneShotActivationStates.FindRef(TargetActor))
 					{
 						IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
-						// ÀsÏ‚İ‚Æ‚µ‚Äƒ}[ƒN
+						// å®Ÿè¡Œæ¸ˆã¿ã¨ã—ã¦ãƒãƒ¼ã‚¯
 						OneShotActivationStates.Add(TargetActor, true);
 					}
 					break;
@@ -89,7 +89,7 @@ void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool
 	}
 }
 
-// ƒpƒYƒ‹‚ÌğŒ‚ğ•]‰¿‚·‚éŠÖ”
+// ãƒ‘ã‚ºãƒ«ã®æ¡ä»¶ã‚’è©•ä¾¡ã™ã‚‹é–¢æ•°
 bool AEventTrigger::EvaluateCondition()
 {
 	if (!TriggerData) return false;

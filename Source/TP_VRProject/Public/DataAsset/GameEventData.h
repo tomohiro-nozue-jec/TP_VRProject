@@ -1,13 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Component/SwitchComponent.h" // ƒXƒCƒbƒ`‚Ìƒ^ƒCƒv‚ğg—p‚·‚é‚½‚ß‚ÉƒCƒ“ƒNƒ‹[ƒh
+#include "Component/SwitchComponent.h" // ã‚¹ã‚¤ãƒƒãƒã®ã‚¿ã‚¤ãƒ—ã‚’ä½¿ç”¨ã™ã‚‹ãŸã‚ã«ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 #include "GameEventData.generated.h"
 
-// •¡”‚ÌƒXƒCƒbƒ`‚ª–‚½‚·‚×‚«ğŒ
+// è¤‡æ•°ã®ã‚¹ã‚¤ãƒƒãƒãŒæº€ãŸã™ã¹ãæ¡ä»¶
 UENUM(BlueprintType)
 enum class ESwitchCondition : uint8
 {
@@ -16,7 +16,7 @@ enum class ESwitchCondition : uint8
 };
 
 
-// ƒ^[ƒQƒbƒgƒAƒNƒ^[‚Ì‹““®‚ğ’è‹`‚·‚éEnum
+// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚¢ã‚¯ã‚¿ãƒ¼ã®æŒ™å‹•ã‚’å®šç¾©ã™ã‚‹Enum
 UENUM(BlueprintType)
 enum class ETargetType : uint8
 {
@@ -24,7 +24,7 @@ enum class ETargetType : uint8
 	OneShot UMETA(DisplayName = "One-Shot (Once)"),
 };
 
-// ƒXƒCƒbƒ`‚ÆA‚»‚Ìƒ^ƒCƒv‚ğŠÖ˜A•t‚¯‚é\‘¢‘Ì
+// ã‚¹ã‚¤ãƒƒãƒã¨ã€ãã®ã‚¿ã‚¤ãƒ—ã‚’é–¢é€£ä»˜ã‘ã‚‹æ§‹é€ ä½“
 USTRUCT(BlueprintType)
 struct FEventSwitch
 {
@@ -37,7 +37,7 @@ struct FEventSwitch
 	ESwitchType SwitchType;
 };
 
-// ƒ^[ƒQƒbƒgƒAƒNƒ^[‚ÆA‚»‚Ìƒ^ƒCƒv‚ğŠÖ˜A•t‚¯‚é\‘¢‘Ì
+// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚¢ã‚¯ã‚¿ãƒ¼ã¨ã€ãã®ã‚¿ã‚¤ãƒ—ã‚’é–¢é€£ä»˜ã‘ã‚‹æ§‹é€ ä½“
 USTRUCT(BlueprintType)
 struct FEventTarget
 {
@@ -60,16 +60,16 @@ class TP_VRPROJECT_API UGameEventData : public UDataAsset
 	GENERATED_BODY()
 
 public :
-	// ƒCƒxƒ“ƒg‚Ì‘ÎÛ‚Æ‚È‚éƒAƒNƒ^[‚Ö‚Ìƒ\ƒtƒgQÆB
-// ƒhƒAA•ó” Aƒ‰ƒCƒgA•Ç‚È‚ÇAí—Ş‚ğ–â‚í‚¸İ’è‰Â”\B
+	// ã‚¤ãƒ™ãƒ³ãƒˆã®å¯¾è±¡ã¨ãªã‚‹ã‚¢ã‚¯ã‚¿ãƒ¼ã¸ã®ã‚½ãƒ•ãƒˆå‚ç…§ã€‚
+// ãƒ‰ã‚¢ã€å®ç®±ã€ãƒ©ã‚¤ãƒˆã€å£ãªã©ã€ç¨®é¡ã‚’å•ã‚ãšè¨­å®šå¯èƒ½ã€‚
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	TArray<FEventTarget> EventTargets;
 
-	// ƒCƒxƒ“ƒg‚ğƒgƒŠƒK[‚·‚éƒXƒCƒbƒ`‚Ì”z—ñ‚ÆA‚»‚Ìƒ^ƒCƒv
+	// ã‚¤ãƒ™ãƒ³ãƒˆã‚’ãƒˆãƒªã‚¬ãƒ¼ã™ã‚‹ã‚¹ã‚¤ãƒƒãƒã®é…åˆ—ã¨ã€ãã®ã‚¿ã‚¤ãƒ—
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	TArray<FEventSwitch> EventSwitches;
 
-	// ƒXƒCƒbƒ`‚ª‰Ÿ‚³‚ê‚½‚ÆŒ©‚È‚·‚½‚ß‚ÌğŒ
+	// ã‚¹ã‚¤ãƒƒãƒãŒæŠ¼ã•ã‚ŒãŸã¨è¦‹ãªã™ãŸã‚ã®æ¡ä»¶
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	ESwitchCondition SwitchCondition;
 
