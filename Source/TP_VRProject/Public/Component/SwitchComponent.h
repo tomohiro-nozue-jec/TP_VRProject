@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,8 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SwitchComponent.generated.h"
 
-// ƒXƒCƒbƒ`‚Ìƒ^ƒCƒv‚ğ’è‹`‚·‚éEnum
-// BP_EventTrigger‚É‚æ‚Á‚ÄGameEventData‚©‚çİ’è‚³‚ê‚é
+// ã‚¹ã‚¤ãƒƒãƒã®ã‚¿ã‚¤ãƒ—ã‚’å®šç¾©ã™ã‚‹Enum
+// BP_EventTriggerã«ã‚ˆã£ã¦GameEventDataã‹ã‚‰è¨­å®šã•ã‚Œã‚‹
 UENUM(BlueprintType)
 enum class ESwitchType : uint8
 {
@@ -15,7 +15,7 @@ enum class ESwitchType : uint8
 	LatchOn UMETA(DisplayName = "Latch On"),
 };
 
-// ƒXƒCƒbƒ`‚Ìó‘Ô‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg
+// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆ
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSwitchStateChanged, USwitchComponent*, SwitchComponent, bool, bIsOn);
 
 
@@ -37,19 +37,19 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	// ƒXƒCƒbƒ`‚Ìó‘Ô‚ğ•\‚·•Ï”
+	// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ã‚’è¡¨ã™å¤‰æ•°
 	UPROPERTY(BlueprintReadWrite, Category = "Switch")
 	bool bIsOn = false;
 
-	// ƒXƒCƒbƒ`‚Ì‹““®ƒ^ƒCƒv‚ğŠO•”‚©‚çİ’è‚Å‚«‚é‚æ‚¤‚É‚·‚é
+	// ã‚¹ã‚¤ãƒƒãƒã®æŒ™å‹•ã‚¿ã‚¤ãƒ—ã‚’å¤–éƒ¨ã‹ã‚‰è¨­å®šã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
 	ESwitchType SwitchType = ESwitchType::Toggle;
 
-	// ƒXƒCƒbƒ`‚Ìó‘Ô‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒCƒxƒ“ƒg
+	// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
 	UPROPERTY(BlueprintAssignable, Category = "Switch")
 	FOnSwitchStateChanged OnSwitchStateChanged;
 
-	// ƒXƒCƒbƒ`‚Ìó‘Ô‚ğØ‚è‘Ö‚¦‚éŠÖ”
+	// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹é–¢æ•°
 	UFUNCTION(BlueprintCallable, Category = "Switch")
 	void ToggleSwitch();
 };

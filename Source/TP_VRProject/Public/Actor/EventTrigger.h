@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,27 +21,27 @@ protected:
 
 protected:
 
-	// ƒgƒŠƒK[‚·‚éƒCƒxƒ“ƒg‚Ìƒf[ƒ^ƒAƒZƒbƒg
+	// ãƒˆãƒªã‚¬ãƒ¼ã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆã®ãƒ‡ãƒ¼ã‚¿ã‚¢ã‚»ãƒƒãƒˆ
 	UPROPERTY(EditAnywhere, Category = "Trigger")
 	UGameEventData* TriggerData;
 
 private:
-	// ÅŒã‚É•]‰¿‚µ‚½ğŒ‚ÌŒ‹‰Ê‚ğ•Û‘¶‚·‚é•Ï”
+	// æœ€å¾Œã«è©•ä¾¡ã—ãŸæ¡ä»¶ã®çµæœã‚’ä¿å­˜ã™ã‚‹å¤‰æ•°
 	UPROPERTY()
 	bool bLastConditionMet = false;
 
-	// Šeƒ^[ƒQƒbƒgƒAƒNƒ^[‚ÌŒ»İ‚ÌƒgƒOƒ‹ó‘Ô
+	// å„ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚¢ã‚¯ã‚¿ãƒ¼ã®ç¾åœ¨ã®ãƒˆã‚°ãƒ«çŠ¶æ…‹
 	UPROPERTY()
 	TMap<AActor*, bool> OneShotActivationStates;
 
-	// ƒXƒCƒbƒ`‚Ìó‘Ô•Ï‰»‚ÉƒoƒCƒ“ƒh‚·‚éŠÖ”
+	// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹å¤‰åŒ–ã«ãƒã‚¤ãƒ³ãƒ‰ã™ã‚‹é–¢æ•°
 	void BindToSwitchDelegates();
 
-	// ƒXƒCƒbƒ`‚Ìó‘Ô‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éŠÖ”
+	// ã‚¹ã‚¤ãƒƒãƒã®çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹é–¢æ•°
 	UFUNCTION()
 	void OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn);
 
-	// ğŒ‚ğ•]‰¿‚µ‚ÄA•K—v‚È‚çƒCƒxƒ“ƒg‚ğƒgƒŠƒK[‚·‚éŠÖ”
+	// æ¡ä»¶ã‚’è©•ä¾¡ã—ã¦ã€å¿…è¦ãªã‚‰ã‚¤ãƒ™ãƒ³ãƒˆã‚’ãƒˆãƒªã‚¬ãƒ¼ã™ã‚‹é–¢æ•°
 	bool EvaluateCondition();
 
 };

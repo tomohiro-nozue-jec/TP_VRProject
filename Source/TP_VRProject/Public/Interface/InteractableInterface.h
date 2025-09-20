@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "InteractableInterface.generated.h"
 
-// ‚±‚ÌƒCƒ“ƒ^[ƒtƒF[ƒX‚ğÀ‘•‚·‚éƒNƒ‰ƒX‚ÍAƒCƒ“ƒ^ƒ‰ƒNƒVƒ‡ƒ“‚ª‰Â”\‚Å‚ ‚é‚±‚Æ‚ğ¦‚·B
+// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚’å®Ÿè£…ã™ã‚‹ã‚¯ãƒ©ã‚¹ã¯ã€ã‚¤ãƒ³ã‚¿ãƒ©ã‚¯ã‚·ãƒ§ãƒ³ãŒå¯èƒ½ã§ã‚ã‚‹ã“ã¨ã‚’ç¤ºã™ã€‚
 UINTERFACE(MinimalAPI)
 class UInteractableInterface : public UInterface
 {
@@ -21,7 +21,7 @@ class TP_VRPROJECT_API IInteractableInterface
 	GENERATED_BODY()
 
 public:
-	// Blueprint‚ÅÀ‘•‰Â”\‚ÈŠÖ”BƒvƒŒƒCƒ„[‚©‚ç‚ÌƒCƒ“ƒ^ƒ‰ƒNƒVƒ‡ƒ“‚ÉŒÄ‚Ño‚³‚ê‚éB
+	// Blueprintã§å®Ÿè£…å¯èƒ½ãªé–¢æ•°ã€‚ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰ã®ã‚¤ãƒ³ã‚¿ãƒ©ã‚¯ã‚·ãƒ§ãƒ³æ™‚ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
 	void OnInteract(AActor* InstigatorActor);
 };
