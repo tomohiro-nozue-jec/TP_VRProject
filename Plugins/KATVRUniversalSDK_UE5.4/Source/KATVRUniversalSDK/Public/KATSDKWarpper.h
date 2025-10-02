@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Core.h"
 #include <functional>
@@ -45,7 +45,7 @@ public:
 		fq.ToAxisAndAngle(axis, angle);
 		axis = FVector(axis.Z, -axis.X, axis.Y);
 
-		return FQuat(FVector::UpVector, FMath::DegreesToRadians(90.0f))  *  FQuat(axis, -angle);
+		return FQuat(FVector::UpVector, FMath::DegreesToRadians(90.0f)) * FQuat(axis, -angle);
 	}
 };
 
@@ -98,11 +98,11 @@ class KATSDKWarpper
 {
 private:
 	void* _sdkHandle;
-	
+
 	void* handle()
 	{
 		//auto sdkPath = FPaths::ProjectPluginsDir() + "KATVRUniversalSDK/ThirdParty/KAT/" + "KATSDKWarpper.dll";
-		auto sdkPath = PLATFORM_WINDOWS? (FPaths::ProjectPluginsDir() + "KATVRUniversalSDK/ThirdParty/KAT/" + "KATSDKWarpper.dll"):"libKATSDKWarpper.so";
+		auto sdkPath = PLATFORM_WINDOWS ? (FPaths::ProjectPluginsDir() + "KATVRUniversalSDK/ThirdParty/KAT/" + "KATSDKWarpper.dll") : "libKATSDKWarpper.so";
 		if (_sdkHandle == nullptr)
 		{
 			auto arr = *sdkPath;
@@ -129,16 +129,16 @@ private:
 	std::function<KATTreadMillMemoryData(const char*)>	getWalkStatusFunc;
 	std::function<void(const char*)>					calibrateFunc;
 	std::function<InstallPaths()>						getVRPathFunc;
-	std::function<void(const char*,float)>				vibrateFunc;
-	std::function<void(const char*,float)>				LEDFunc;
+	std::function<void(const char*, float)>				vibrateFunc;
+	std::function<void(const char*, float)>				LEDFunc;
 
 	std::function<void(float)>							vibrateConstFunc;
-	std::function<void(float,float)>					vibrateInSecondsFunc;
+	std::function<void(float, float)>					vibrateInSecondsFunc;
 	std::function<void(float)>							vibrateOnceFunc;
 	std::function<void(float, float)>					vibrateForFunc;
-	
+
 	std::function<void(float)>							LEDConstFunc;
-	std::function<void(float,float)>					LEDInSecondsFunc;
+	std::function<void(float, float)>					LEDInSecondsFunc;
 	std::function<void(float)>							LEDOnceFunc;
 	std::function<void(float, float, float)>			LEDForFunc;
 
@@ -148,7 +148,7 @@ private:
 
 	std::function<void(void(*)(const char*, const char*, int))>			SetDeviceLostCallbackFunc;
 
-	
+
 
 public:
 	KATSDKWarpper() :_sdkHandle(nullptr)
@@ -230,7 +230,7 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(const char*,float);
+			using funcType = void(const char*, float);
 			vibrateFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("Vibrate")));
 
 			vibrateFunc(sn, amplitude);
@@ -280,9 +280,9 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float,float);
+			using funcType = void(float, float);
 			vibrateInSecondsFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateInSeconds")));
-		
+
 			vibrateInSecondsFunc(amplitude, duration);
 		}
 	}
@@ -304,7 +304,7 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float,float);
+			using funcType = void(float, float);
 			vibrateForFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateFor")));
 
 			vibrateForFunc(duration, amplitude);
@@ -329,7 +329,7 @@ public:
 		if (handle() != nullptr)
 		{
 			using funcType = void(float);
-			LEDOnceFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("amplitude")));
+			LEDOnceFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDOnce")));//amplitude->LEDOnce
 
 			LEDOnceFunc(amplitude);
 		}
@@ -340,7 +340,7 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float,float,float);
+			using funcType = void(float, float, float);
 			LEDForFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDFor")));
 
 			LEDFor(duration, frequency, amplitude);

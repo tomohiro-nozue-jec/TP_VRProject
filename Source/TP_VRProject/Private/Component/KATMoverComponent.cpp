@@ -1,18 +1,12 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Component/KATMoverComponent.h"
-#include "KATSDKWarpper.h"
+﻿#include "Component/KATMoverComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Component/KATHub.h"
+#include "GameFramework/Actor.h"
 
-// Sets default values for this component's properties
+
 UKATMoverComponent::UKATMoverComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 // Called when the game starts
@@ -20,10 +14,8 @@ void UKATMoverComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
-	KATDataHandler = new KATSDKWarpper();
-	VRCamera = Cast<UCameraComponent>(GetOwner()->FindComponentByClass(UCameraComponent::StaticClass()));
+	KATDataHandler = new KATHub(); // KATHubのインスタンスを生成
+	VRCamera = GetOwner()->FindComponentByClass<UCameraComponent>();
 }
 
 
@@ -32,8 +24,10 @@ void UKATMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-	HandleKATVRInput(DeltaTime);
+	if (KATDataHandler)
+	{
+		HandleKATVRInput(DeltaTime);
+	}
 }
 
 void UKATMoverComponent::StartMove()
@@ -46,6 +40,15 @@ void UKATMoverComponent::StopMove()
 	CanMove = false;
 }
 
+void UKATMoverComponent::Calibrate()
+{
+	if (KATDataHandler)
+	{
+		KATDataHandler->Calibrate(nullptr);
+		UE_LOG(LogTemp, Log, TEXT("KATVR Calibration Requested."));
+	}
+}
+
 void UKATMoverComponent::HandleKATVRInput(float DeltaTime)
 {
 	HandleKATVRInputWalk(DeltaTime);
@@ -54,46 +57,42 @@ void UKATMoverComponent::HandleKATVRInput(float DeltaTime)
 
 void UKATMoverComponent::HandleKATVRInputWalk(float DeltaTime)
 {
-	if (!CanMove) return;
+	if (!CanMove || !VRCamera) return;
 
-	if (VRCamera == nullptr) return;
+	auto walkStatus = KATDataHandler->GetWalkStatus(nullptr);
+	if (!walkStatus.treadMillData.connected) return;
 
-	Vector3 MoveSpeed = KATDataHandler->GetWalkStatus(nullptr).treadMillData.moveSpeed;
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Move: %s"), *Vector3::toFVector(MoveSpeed).ToString()));
+	Vector3 MoveSpeed = walkStatus.treadMillData.moveSpeed;
 
 	float MoveAmount = MoveSpeed.z;
-	auto cameraForwardVector = FVector(VRCamera->GetForwardVector().X, VRCamera->GetForwardVector().Y, 0).GetSafeNormal();
-	//FootstepCounter += FMath::Abs(DeltaTime * NowSpeed * MoveAmount);
+	FVector CameraForward = VRCamera->GetForwardVector();
+	CameraForward.Z = 0; // XY平面での移動に限定
+	CameraForward.Normalize();
 
-	GetOwner()->AddActorWorldOffset(cameraForwardVector * MoveAmount * NowSpeed,true);
-	//AddActorWorldOffset(GetActorForwardVector() * MoveAmount * NowSpeed);
+	// DeltaTimeを乗算してフレームレートに依存しない移動を実現
+	FVector Offset = CameraForward * MoveAmount * NowSpeed * DeltaTime;
+
+	GetOwner()->AddActorWorldOffset(Offset, true);
 }
 
 void UKATMoverComponent::HandleKATVRRotator()
 {
-	FQuat newQuat = Quaternion::unityToUnreal(KATDataHandler->GetWalkStatus(nullptr).treadMillData.bodyRotationRaw);
+	if (!VRCamera) return;
 
-	RotateCharacterByFQuat(newQuat, 0.5f);
-}
+	auto walkStatus = KATDataHandler->GetWalkStatus(nullptr);
+	if (!walkStatus.treadMillData.connected) return;
 
-void UKATMoverComponent::RotateCharacterByFQuat(FQuat targetQuat, float duration)
-{
-	//if (!bCanRotate) return;
+	FQuat newQuat = Quaternion::unityToUnreal(walkStatus.treadMillData.bodyRotationRaw);
 
-	CurrentRotator = targetQuat.Rotator();
+	CurrentRotator = newQuat.Rotator();
 	FRotator DeltaRotation = CurrentRotator - PreRotator;
 
+	// Yawの回転方向を調整
 	DeltaRotation.Yaw = -DeltaRotation.Yaw;
 
+	// Actorの現在の回転に差分を加える
 	FRotator CharacterTargetRotator = GetOwner()->GetActorRotation() + DeltaRotation;
-
-	FRotator VROffsetRotator = GetRelativeRotation() - DeltaRotation;
-
 	GetOwner()->SetActorRotation(CharacterTargetRotator);
-
-	SetRelativeRotation(VROffsetRotator);
 
 	PreRotator = CurrentRotator;
 }
-
