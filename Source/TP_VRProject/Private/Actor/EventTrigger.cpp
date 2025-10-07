@@ -3,6 +3,7 @@
 
 #include "Actor/EventTrigger.h"
 #include "Interface/ActivatableInterface.h"
+#include "Interface/StatefulActivatableInterface.h"
 #include "Component/SwitchComponent.h"
 
 
@@ -59,34 +60,49 @@ void AEventTrigger::BindToSwitchDelegates()
 void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn)
 {
 	// 現在のパズル条件を評価
-	bool bConditionMet = EvaluateCondition();
+	bool bCurrentConditionMet = EvaluateCondition();
 
-	// 条件が満たされている場合のみ、ターゲットアクターのアクションを実行
-	if (bConditionMet)
+	// 【Stateful制御のための条件変化フラグ】
+	bool bConditionJustMet = !bLastConditionMet && bCurrentConditionMet;
+	bool bConditionJustLost = bLastConditionMet && !bCurrentConditionMet;
+
+	for (const FEventTarget& EventTarget : TriggerData->EventTargets)
 	{
-		for (const FEventTarget& EventTarget : TriggerData->EventTargets)
+		if (AActor* TargetActor = EventTarget.TargetActor.Get())
 		{
-			if (AActor* TargetActor = EventTarget.TargetActor.Get())
+			switch (EventTarget.TargetType)
 			{
-				switch (EventTarget.TargetType)
+			case ETargetType::EveryTime:
+				// EveryTime: 条件が満たされた瞬間のみ実行
+				if (bConditionJustMet)
 				{
-				case ETargetType::EveryTime:
-					// EveryTimeタイプは、条件が満たされるたびに実行
 					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
-					break;
-				case ETargetType::OneShot:
-					// OneShotタイプは、まだ実行されていなければ実行
-					if (!OneShotActivationStates.FindRef(TargetActor))
-					{
-						IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
-						// 実行済みとしてマーク
-						OneShotActivationStates.Add(TargetActor, true);
-					}
-					break;
 				}
+				break;
+
+			case ETargetType::OneShot:
+				// OneShot: 条件が満たされた瞬間、かつまだ実行されていなければ実行
+				if (bConditionJustMet && !OneShotActivationStates.FindRef(TargetActor))
+				{
+					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
+					OneShotActivationStates.Add(TargetActor, true);
+				}
+				break;
+
+			case ETargetType::Stateful:
+				// Stateful: 条件が変化したときのみ、新しい状態を通知
+				if (bConditionJustMet || bConditionJustLost)
+				{
+					// SetActivationStateインターフェースを呼び出し
+					IStatefulActivatableInterface::Execute_SetActivationState(TargetActor, bCurrentConditionMet, SwitchComponent->GetOwner());
+				}
+				break;
 			}
 		}
 	}
+
+	// 次回の評価のために、現在の条件を保存
+	bLastConditionMet = bCurrentConditionMet;
 }
 
 // パズルの条件を評価する関数

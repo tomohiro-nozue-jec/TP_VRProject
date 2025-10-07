@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ActivatableInterface.generated.h"
+#include "StatefulActivatableInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UActivatableInterface : public UInterface
+class UStatefulActivatableInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,12 +16,12 @@ class UActivatableInterface : public UInterface
 /**
  * 
  */
-class TP_VRPROJECT_API IActivatableInterface
+class TP_VRPROJECT_API IStatefulActivatableInterface
 {
 	GENERATED_BODY()
 
 public:
-	// Blueprintで実装可能な関数。アクティベーションイベントを処理する。
+	// Blueprintで実装可能な関数。アクティベーション状態を設定する。
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Activation")
-	void OnActivate(AActor* Activator, bool bIsOn);
+	void SetActivationState(bool bNewState, AActor* Activator);
 };

@@ -26,13 +26,13 @@ protected:
 	UGameEventData* TriggerData;
 
 private:
-	// 最後に評価した条件の結果を保存する変数
-	UPROPERTY()
-	bool bLastConditionMet = false;
-
 	// 各ターゲットアクターの現在のトグル状態
 	UPROPERTY()
 	TMap<AActor*, bool> OneShotActivationStates;
+
+	// 前回の条件評価結果（Stateful制御のために必要）
+	UPROPERTY()
+	bool bLastConditionMet = false;
 
 	// スイッチの状態変化にバインドする関数
 	void BindToSwitchDelegates();
