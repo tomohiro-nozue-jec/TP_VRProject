@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Component/SwitchComponent.h" // スイッチのタイプを使用するためにインクルード
+#include "Component/SwitchComponent.h"
 #include "GameEventData.generated.h"
 
 // 複数のスイッチが満たすべき条件
@@ -22,6 +22,7 @@ enum class ETargetType : uint8
 {
 	EveryTime UMETA(DisplayName = "Every Time"),
 	OneShot UMETA(DisplayName = "One-Shot (Once)"),
+	Stateful UMETA(DisplayName = "Stateful (ON/OFF Control)"),
 };
 
 // スイッチと、そのタイプを関連付ける構造体
