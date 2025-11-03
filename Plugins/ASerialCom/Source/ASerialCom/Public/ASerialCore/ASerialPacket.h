@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "ASerial_ErrorCodeList.h"
 #include <stdint.h>
-#include "ASerialPacket.generated.h"
 
 #define _ASERIAL_MAX_DATA_NUM 32
 
@@ -41,9 +40,8 @@ namespace ASerialDataStruct {
  * 
  */
 UCLASS(BlueprintType)
-class ASERIALCOM_API UASerialPacket : public UObject
+class ASERIALCOM_API UASerialPacket
 {
-    GENERATED_BODY()
 
 public:
     //===public定数===
@@ -53,22 +51,16 @@ public:
     static const uint8_t RESERVED_COMMAND_GET_INFO = 0x01;  //予約済みコマンド デバイス情報リクエスト
     static const uint8_t DATA_NUM_MAX = _ASERIAL_MAX_DATA_NUM;                 //データ最大数
     //================
-
-    UASerialPacket();
-
-    /// UObjectでライフサイクルを管理すると、コンストラクタは必ず引数を持たない状態でなければならない
-    /// なので、以下のコンストラクタはイニシャライズに変えます。使う前に必ず呼ぶように
  
+
     /// @brief ASerialPacketコンストラクタ(deviceモード)
     /// @param _device_id device ID
     /// @param _device_ver device version
-    //UASerialPacket(uint8_t _device_id, uint8_t _device_ver);
-    void Initialize(uint8_t _device_id, uint8_t _device_ver);
+    UASerialPacket(uint8_t _device_id, uint8_t _device_ver);
 
     /// @brief ASerialPacketコンストラクタ(controllerモード)
     /// @param _target_device_id 
-    //UASerialPacket(uint8_t _target_device_id);
-    void Initialize(uint8_t _target_device_id);
+    UASerialPacket(uint8_t _target_device_id);
 
 
     /// @brief 動作モードを取得

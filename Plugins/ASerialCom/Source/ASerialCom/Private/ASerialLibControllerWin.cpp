@@ -3,36 +3,17 @@
 
 #include "ASerialLibControllerWin.h"
 
-UASerialLibControllerWin::UASerialLibControllerWin()
-{
-}
 
-// 2025.08.06 ウー start
-//UASerialLibControllerWin::UASerialLibControllerWin(int target_device_id, int device_ver)
-//    : UASerialPacket(target_device_id)
-//{
-//    m_device_ver_max = device_ver;
-//    m_device_ver_min = device_ver;
-//}
-//
-//UASerialLibControllerWin::UASerialLibControllerWin(int target_device_id, int device_ver_min, int device_ver_max)
-//    : UASerialPacket(target_device_id)
-//{
-//    m_device_ver_max = device_ver_max;
-//    m_device_ver_min = device_ver_min;
-//}
-// 2025.08.06 end
-
-void UASerialLibControllerWin::Initialize(int target_device_id, int device_ver)
+UASerialLibControllerWin::UASerialLibControllerWin(int target_device_id, int device_ver)
+    : UASerialPacket(target_device_id)
 {
-    Super::Initialize(target_device_id);
     m_device_ver_max = device_ver;
     m_device_ver_min = device_ver;
 }
 
-void UASerialLibControllerWin::Initialize(int target_device_id, int device_ver_min, int device_ver_max)
+UASerialLibControllerWin::UASerialLibControllerWin(int target_device_id, int device_ver_min, int device_ver_max)
+    : UASerialPacket(target_device_id)
 {
-    Super::Initialize(target_device_id);
     m_device_ver_max = device_ver_max;
     m_device_ver_min = device_ver_min;
 }

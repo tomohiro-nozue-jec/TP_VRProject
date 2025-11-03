@@ -3,31 +3,15 @@
 
 #include "ASerialCore/ASerialPacket.h"
 
-UASerialPacket::UASerialPacket()
-{
-}
 
-//UASerialPacket::UASerialPacket(uint8_t _device_id, uint8_t _device_ver)
-//{
-//    m_device_id = _device_id;
-//    m_device_ver = _device_ver;
-//    m_mode = MODE_DEVICE;
-//}
-//
-//UASerialPacket::UASerialPacket(uint8_t _target_device_id)
-//{
-//    m_target_device_id = _target_device_id;
-//    m_mode = MODE_CONTROLLER;
-//}
-
-void UASerialPacket::Initialize(uint8_t _device_id, uint8_t _device_ver)
+UASerialPacket::UASerialPacket(uint8_t _device_id, uint8_t _device_ver)
 {
     m_device_id = _device_id;
     m_device_ver = _device_ver;
     m_mode = MODE_DEVICE;
 }
 
-void UASerialPacket::Initialize(uint8_t _target_device_id)
+UASerialPacket::UASerialPacket(uint8_t _target_device_id)
 {
     m_target_device_id = _target_device_id;
     m_mode = MODE_CONTROLLER;

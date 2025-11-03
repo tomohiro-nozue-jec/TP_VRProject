@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "ASerialLibControllerWin.generated.h"
+
 
 enum ConnectResult
 {
@@ -22,33 +22,19 @@ enum ConnectResult
 UCLASS(BlueprintType)
 class ASERIALCOM_API UASerialLibControllerWin : public UASerialPacket
 {
-    GENERATED_BODY()
 
 public:
-
-    UASerialLibControllerWin();
-
-    /// UObjectでライフサイクルを管理すると、コンストラクタは必ず引数を持たない状態でなければならない
-    /// なので、以下のコンストラクタはイニシャライズに変えます。使う前に必ず呼ぶように
 
     ///  @brief ASerialオブジェクトを生成する
     ///  @param target_device_id  ターゲットデバイスID
     ///  @param device_ver デバイスのバージョン
-    // 2025.08.06 ウー start
-    //UASerialLibControllerWin(int target_device_id, int device_ver);
-    //UFUNCTION(BlueprintCallable, Category = "ASerial Controller")
-    void Initialize(int target_device_id, int device_ver);
-    // 2025.08.06 end
+    UASerialLibControllerWin(int target_device_id, int device_ver);
 
     /// @brief ASerialオブジェクトを生成する
     /// @param target_device_id ターゲットデバイスID
     /// @param device_ver_min  デバイスの最小バージョン
     /// @param device_ver_max  デバイスの最大バージョン
-    // 2025.08.06 ウー start
-    //UASerialLibControllerWin(int target_device_id, int device_ver_min, int device_ver_max);
-    //UFUNCTION(BlueprintCallable, Category = "ASerial Controller")
-    void Initialize(int target_device_id, int device_ver_min, int device_ver_max);
-    // 2025.08.06 end
+    UASerialLibControllerWin(int target_device_id, int device_ver_min, int device_ver_max);
 
     /// @brief デバイスに接続する
     /// @param COM_num COM番号
