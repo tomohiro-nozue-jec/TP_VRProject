@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 
-enum ConnectResult
+enum ExecutionResult
 {
     Fail = -1,
     Succ
@@ -40,20 +40,20 @@ public:
     /// @return  0:接続成功 -1:接続失敗
     // 2025.08.06 ウー start
     //int ConnectDevice(int COM_num);
-    ConnectResult ConnectDevice(int COM_num);
+    ExecutionResult ConnectDevice(int COM_num);
     // 2025.08.06 end
 
     /// @brief デバイスに自動接続する
     /// @return 0:接続成功 -1:接続失敗
     /// @note 1~255のCOM番号を順に試行し、接続可能なデバイスを探します。
     // 2025.08.06 ウー start
-    ConnectResult AutoConnectDevice();
+    ExecutionResult AutoConnectDevice();
     // 2025.08.06 end
 
     /// @brief デバイスの接続を切断する 
     /// @return 0:切断成功 -1:切断失敗
     // 2025.08.06 ウー start
-    ConnectResult DisConnectDevice();
+    ExecutionResult DisConnectDevice();
     // 2025.08.06 end
 
     /// @brief インターフェースポインタを設定

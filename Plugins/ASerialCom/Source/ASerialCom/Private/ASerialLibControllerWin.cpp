@@ -18,15 +18,15 @@ UASerialLibControllerWin::UASerialLibControllerWin(int target_device_id, int dev
     m_device_ver_min = device_ver_min;
 }
 
-ConnectResult UASerialLibControllerWin::ConnectDevice(int COM_num)
+ExecutionResult UASerialLibControllerWin::ConnectDevice(int COM_num)
 {
     if (GetConnectionState() == true) {
-        return ConnectResult::Fail;
+        return ExecutionResult::Fail;
     }
 
     int st = m_inteface->OpenPort(COM_num);
     if (st != 0) {
-        return ConnectResult::Fail;
+        return ExecutionResult::Fail;
     }
 
     m_inteface->clear(); //接続したときにバッファをクリア
@@ -48,23 +48,23 @@ ConnectResult UASerialLibControllerWin::ConnectDevice(int COM_num)
     if (clock() - read_time >= 50 || st == -1 || data_buf.data[0] != GetID() ||
         (data_buf.data[1] < m_device_ver_min && data_buf.data[1] > m_device_ver_max)) {
         m_inteface->ClosePort();
-        return ConnectResult::Fail;
+        return ExecutionResult::Fail;
     }
 
     SetConnectionState(true);
     m_com = COM_num;
 
-    return ConnectResult::Succ;
+    return ExecutionResult::Succ;
 }
 
-ConnectResult UASerialLibControllerWin::AutoConnectDevice() {
+ExecutionResult UASerialLibControllerWin::AutoConnectDevice() {
     if (GetConnectionState() == true) {
-        return ConnectResult::Fail;
+        return ExecutionResult::Fail;
     }
 
     // 2025.08.06 ウー start
     //int ret = 0;
-    ConnectResult ret = ConnectResult::Fail;
+    ExecutionResult ret = ExecutionResult::Fail;
     // 2025.08.06 end
 
     for (int i = 1; i <= 255; ++i) {
@@ -74,7 +74,7 @@ ConnectResult UASerialLibControllerWin::AutoConnectDevice() {
             // 2025.08.06 ウー start
             //ret = i;
             m_com = i;
-            ret = ConnectResult::Succ;
+            ret = ExecutionResult::Succ;
             // 2025.08.06 end
             break;
         }
@@ -87,9 +87,9 @@ ConnectResult UASerialLibControllerWin::AutoConnectDevice() {
     return ret;
 }
 
-ConnectResult UASerialLibControllerWin::DisConnectDevice() {
+ExecutionResult UASerialLibControllerWin::DisConnectDevice() {
     if (m_inteface->GetState() == false) {
-        return ConnectResult::Fail;
+        return ExecutionResult::Fail;
     }
 
     int st = m_inteface->ClosePort();
@@ -99,9 +99,9 @@ ConnectResult UASerialLibControllerWin::DisConnectDevice() {
     // 2025.08.06 ウー start
     //return st;
     if (st == 0)
-        return ConnectResult::Succ;
+        return ExecutionResult::Succ;
     else
-        return ConnectResult::Fail;
+        return ExecutionResult::Fail;
     // 2025.08.06 end
 }
 
