@@ -39,7 +39,6 @@ namespace ASerialDataStruct {
 /**
  * 
  */
-UCLASS(BlueprintType)
 class ASERIALCOM_API UASerialPacket
 {
 
