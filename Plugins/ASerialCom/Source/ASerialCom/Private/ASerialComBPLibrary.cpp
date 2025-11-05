@@ -1,6 +1,7 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ASerialComBPLibrary.h"
+#include "Device/WiredDevice.h"
 #include "ASerialCom.h"
 
 UASerialComBPLibrary::UASerialComBPLibrary(const FObjectInitializer& ObjectInitializer)
@@ -9,8 +10,8 @@ UASerialComBPLibrary::UASerialComBPLibrary(const FObjectInitializer& ObjectIniti
 
 }
 
-UASerialLibControllerWin* UASerialComBPLibrary::CreateASerialLibController()
+UWiredDevice* UASerialComBPLibrary::CreateDevice(int ID, int Version, const FString& Name)
 {
-	return NewObject<UASerialLibControllerWin>();;
+	return NewObject<UWiredDevice>();
 }
 

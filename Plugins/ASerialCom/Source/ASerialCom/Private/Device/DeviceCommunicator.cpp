@@ -3,13 +3,14 @@
 
 #include "Device/DeviceCommunicator.h"
 
-DeviceCommunicator::DeviceCommunicator(int ID, int Version, const TCHAR* Name)
+DeviceCommunicator::DeviceCommunicator(int ID, int Version, const TCHAR* Name, TQueue<ASerialDataStruct::ASerialData, EQueueMode::Spsc>* InDataQueue)
 	: UpdateFrequency(60.0f)
 	, bIsRunning(true)
 	, bIsPause(false)
 	, Device(nullptr)
 	, DeviceID(ID)
 	, DeviceVer(Version)
+	, DataQueue(InDataQueue)
 	, ProcessState(EProcessState::Idle)
 {
 	Thread = FRunnableThread::Create(this, Name, 0, TPri_Normal);
@@ -47,6 +48,7 @@ uint32 DeviceCommunicator::Run()
 		double StartTime = FPlatformTime::Seconds();
 
 		// やること
+		HandleCmd();
 
 		double Elapsed = FPlatformTime::Seconds() - StartTime;
 		double SleepTime = 1.f / UpdateFrequency - Elapsed;
@@ -79,6 +81,21 @@ void DeviceCommunicator::Exit()
 
 }
 
+void DeviceCommunicator::Pause()
+{
+	bIsPause = true;
+}
+
+void DeviceCommunicator::ReStart()
+{
+	bIsPause = false;
+}
+
+void DeviceCommunicator::ChangeFrequency(float NewFrequency)
+{
+	UpdateFrequency = NewFrequency;
+}
+
 void DeviceCommunicator::EnsureCompletion()
 {
 	Stop();
@@ -90,14 +107,16 @@ void DeviceCommunicator::EnsureCompletion()
 	}
 }
 
-void DeviceCommunicator::Pause()
+ExecutionResult DeviceCommunicator::Connect()
 {
-	bIsPause = true;
-}
+	if (!Device)
+		return ExecutionResult::Fail;
 
-void DeviceCommunicator::ReStart()
-{
-	bIsPause = false;
+	// デバイスが接続していないなら、接続する
+	if (!Device->GetConnectionState())
+		return Device->AutoConnectDevice();
+
+	return ExecutionResult::Fail;
 }
 
 ExecutionResult DeviceCommunicator::Disconnect()
@@ -112,6 +131,13 @@ ExecutionResult DeviceCommunicator::Disconnect()
 	return ExecutionResult::Fail;
 }
 
+bool DeviceCommunicator::IsConnecting()
+{
+	if (!Device || !Device->GetConnectionState())
+		return false;
+	return true;
+}
+
 void DeviceCommunicator::ReceiveCmd(int Cmd)
 {
 	CommandQueue.Enqueue(Cmd);
@@ -123,28 +149,9 @@ void DeviceCommunicator::CreateDevice()
 	Device->SetInterfacePt(new WindowsSerial());
 }
 
-ExecutionResult DeviceCommunicator::Connect()
-{
-	if (!Device)
-		return ExecutionResult::Fail;
-
-	// デバイスが接続していないなら、接続する
-	if(!Device->GetConnectionState())
-		return Device->AutoConnectDevice();
-
-	return ExecutionResult::Fail;
-}
-
-bool DeviceCommunicator::IsConnected()
-{
-	if (!Device || !Device->GetConnectionState())
-		return false;
-	return true;
-}
-
 void DeviceCommunicator::HandleCmd()
 {
-	if (!IsConnected())
+	if (!IsConnecting())
 		return;
 
 	switch (ProcessState)
@@ -195,7 +202,7 @@ void DeviceCommunicator::HandleCmd()
 				if (RecieveData(RecievedData))
 				{
 					// 貰ったデータをキューに収納
-					DataQueue.Enqueue(RecievedData);
+					DataQueue->Enqueue(RecievedData);
 					// コマンドを削除
 					CommandQueue.Pop();
 					ProcessState = EProcessState::Idle;
@@ -208,7 +215,7 @@ void DeviceCommunicator::HandleCmd()
 
 bool DeviceCommunicator::SendCommand(uint8_t Command)
 {
-	if (!IsConnected())
+	if (!IsConnecting())
 		return false;
 
 	int WriteResult = Device->WriteData(Command);
@@ -222,7 +229,7 @@ bool DeviceCommunicator::SendCommand(uint8_t Command)
 
 bool DeviceCommunicator::RecieveData(ASerialDataStruct::ASerialData& oData)
 {
-	if (!IsConnected())
+	if (!IsConnecting())
 		return false;
 
 	int ReadResult = Device->ReadData(&oData);

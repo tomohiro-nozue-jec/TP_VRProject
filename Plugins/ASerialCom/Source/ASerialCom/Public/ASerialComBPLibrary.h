@@ -3,8 +3,9 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "ASerialLibControllerWin.h"
 #include "ASerialComBPLibrary.generated.h"
+
+class UWiredDevice;
 
 /* 
 *	Function library class.
@@ -23,11 +24,13 @@
 *	For more info on custom blueprint nodes visit documentation:
 *	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
 */
-UCLASS()
+UCLASS(BlueprintType, Category = "ASerial")
 class UASerialComBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	//UFUNCTION(BlueprintCallable, Category = "ASerial Library", meta = (DisplayName = "Create ASerial Controller"))
-	static UASerialLibControllerWin* CreateASerialLibController();
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "ASerial Library")
+	static UWiredDevice* CreateDevice(int DeviceID, int DeviceVersion, const FString& Name);
 };

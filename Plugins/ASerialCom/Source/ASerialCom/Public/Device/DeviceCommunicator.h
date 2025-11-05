@@ -22,7 +22,7 @@ enum class EProcessState
 class ASERIALCOM_API DeviceCommunicator : public FRunnable
 {
 public:
-	DeviceCommunicator(int ID, int Version, const TCHAR* Name);
+	DeviceCommunicator(int ID, int Version, const TCHAR* Name, TQueue<ASerialDataStruct::ASerialData, EQueueMode::Spsc>* InDataQueue);
 	~DeviceCommunicator();
 
 	virtual bool Init() override;
@@ -34,11 +34,6 @@ public:
 public:
 
 	/// <summary>
-	/// 安全に終了する
-	/// </summary>
-	void EnsureCompletion();
-
-	/// <summary>
 	/// 一時停止する
 	/// </summary>
 	void Pause();
@@ -48,7 +43,18 @@ public:
 	/// </summary>
 	void ReStart();
 
+	/// <summary>
+	/// 更新頻度を変更
+	/// </summary>
+	/// <param name="NewFrequency">新しい更新頻度</param>
+	void ChangeFrequency(float NewFrequency);
+
 private:
+
+	/// <summary>
+	/// 安全に終了する
+	/// </summary>
+	void EnsureCompletion();
 
 	/// <summary>
 	/// 今のスレッドを管理する
@@ -76,10 +82,21 @@ private:
 public:
 
 	/// <summary>
+	/// 接続
+	/// </summary>
+	ExecutionResult Connect();
+
+	/// <summary>
 	/// 切断
 	/// </summary>
 	/// <returns>Succ: 成功, Fail: 失敗</returns>
 	ExecutionResult Disconnect();
+
+	/// <summary>
+	/// 接続しているか
+	/// </summary>
+	/// <returns>true: はい, false: いいえ</returns>
+	bool IsConnecting();
 
 	/// <summary>
 	/// コマンドを受ける
@@ -91,17 +108,6 @@ private:
 	/// デバイスを生成
 	/// </summary>
 	void CreateDevice();
-
-	/// <summary>
-	/// 接続
-	/// </summary>
-	ExecutionResult Connect();
-
-	/// <summary>
-	/// 接続したか
-	/// </summary>
-	/// <returns>true: はい, false: いいえ</returns>
-	bool IsConnected();
 
 	/// <summary>
 	/// コマンド処理
@@ -163,7 +169,7 @@ private:
 	/// <summary>
 	/// 貰ったデータのキュー
 	/// </summary>
-	TQueue<ASerialDataStruct::ASerialData, EQueueMode::Spsc> DataQueue;
+	TQueue<ASerialDataStruct::ASerialData, EQueueMode::Spsc>* DataQueue;
 
 	/// <summary>
 	/// プロセスの状態
