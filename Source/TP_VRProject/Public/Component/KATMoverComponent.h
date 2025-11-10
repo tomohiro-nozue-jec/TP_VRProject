@@ -29,18 +29,92 @@ public:
 	/// <summary>
 	/// 移動開始
 	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Movement")
 	void StartMove();
 
 	/// <summary>
 	/// 移動停止
 	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Movement")
 	void StopMove();
 
 	/// <summary>
 	/// KATVRのキャリブレーションを実行
 	/// </summary>
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Calibration")
 	void DoCalibration();
+
+	/// <summary>
+	/// デバイス数を取得
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Device")
+	int32 GetDeviceCount();
+
+	/// <summary>
+	/// 最後のキャリブレーションからの経過時間を取得
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Calibration")
+	float GetLastCalibratedTimeEscaped();
+
+	/// <summary>
+	/// デバイスに振動を送信（一定振幅）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
+	void VibrateConst(float Amplitude);
+
+	/// <summary>
+	/// デバイスに振動を送信（指定時間）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
+	void VibrateInSeconds(float Amplitude, float Duration);
+
+	/// <summary>
+	/// デバイスに振動を送信（1回）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
+	void VibrateOnce(float Amplitude);
+
+	/// <summary>
+	/// デバイスに振動を送信（時間と振幅指定）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
+	void VibrateFor(float Duration, float Amplitude);
+
+	/// <summary>
+	/// LEDを点灯（一定輝度）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
+	void LEDConst(float Amplitude);
+
+	/// <summary>
+	/// LEDを点灯（指定時間）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
+	void LEDInSeconds(float Amplitude, float Duration);
+
+	/// <summary>
+	/// LEDを点灯（1回）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
+	void LEDOnce(float Amplitude);
+
+	/// <summary>
+	/// LEDを点灯（時間、周波数、振幅指定）
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
+	void LEDFor(float Duration, float Frequency, float Amplitude);
+
+	/// <summary>
+	/// デバイスに強制接続
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Device")
+	void ForceConnectDevice();
+
+	/// <summary>
+	/// 接続されているかチェック
+	/// </summary>
+	UFUNCTION(BlueprintCallable, Category = "KATVR|Device")
+	bool IsDeviceConnected();
 
 private:
 

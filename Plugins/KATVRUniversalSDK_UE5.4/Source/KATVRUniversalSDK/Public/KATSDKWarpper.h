@@ -102,7 +102,7 @@ private:
 	void* handle()
 	{
 		//auto sdkPath = FPaths::ProjectPluginsDir() + "KATVRUniversalSDK/ThirdParty/KAT/" + "KATSDKWarpper.dll";
-		auto sdkPath = PLATFORM_WINDOWS ? (FPaths::ProjectPluginsDir() + "KATVRUniversalSDK/ThirdParty/KAT/" + "KATSDKWarpper.dll") : "libKATSDKWarpper.so";
+		auto sdkPath = PLATFORM_WINDOWS ? (FPaths::ProjectPluginsDir() + "KATVRUniversalSDK_UE5.4/ThirdParty/KAT/" + "KATSDKWarpper.dll") : "libKATSDKWarpper.so";
 		if (_sdkHandle == nullptr)
 		{
 			auto arr = *sdkPath;
@@ -116,7 +116,7 @@ private:
 
 			if (_sdkHandle == nullptr)
 			{
-				UE_LOG(LogTemp, Error, TEXT("KAT Native SDK Not Found!1"));
+				UE_LOG(LogTemp, Error, TEXT("KAT Native SDK Not Found!"));
 			}
 		}
 
@@ -213,12 +213,16 @@ public:
 	}
 
 	//Get Enviorment Install Path
-	InstallPaths GetVRPath()//kat
+	InstallPaths GetVRPath()
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = InstallPaths();
-			getVRPathFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("GetVRPath")));
+			if (getVRPathFunc == nullptr)
+			{
+				using funcType = InstallPaths();
+				getVRPathFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("GetVRPath")));
+			}
+			
 			return getVRPathFunc();
 		}
 
@@ -230,8 +234,11 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(const char*, float);
-			vibrateFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("Vibrate")));
+			if (vibrateFunc == nullptr)
+			{
+				using funcType = void(const char*, float);
+				vibrateFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("Vibrate")));
+			}
 
 			vibrateFunc(sn, amplitude);
 		}
@@ -242,8 +249,11 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(const char*, float);
-			LEDFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LED")));
+			if (LEDFunc == nullptr)
+			{
+				using funcType = void(const char*, float);
+				LEDFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LED")));
+			}
 
 			LEDFunc(sn, amplitude);
 		}
@@ -256,8 +266,11 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float);
-			vibrateConstFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateConst")));
+			if (vibrateConstFunc == nullptr)
+			{
+				using funcType = void(float);
+				vibrateConstFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateConst")));
+			}
 
 			vibrateConstFunc(amplitude);
 		}
@@ -268,8 +281,11 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float);
-			LEDConstFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDConst")));
+			if (LEDConstFunc == nullptr)
+			{
+				using funcType = void(float);
+				LEDConstFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDConst")));
+			}
 
 			LEDConstFunc(amplitude);
 		}
@@ -280,8 +296,11 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float, float);
-			vibrateInSecondsFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateInSeconds")));
+			if (vibrateInSecondsFunc == nullptr)
+			{
+				using funcType = void(float, float);
+				vibrateInSecondsFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateInSeconds")));
+			}
 
 			vibrateInSecondsFunc(amplitude, duration);
 		}
@@ -292,20 +311,26 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float);
-			vibrateOnceFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateOnce")));
+			if (vibrateOnceFunc == nullptr)
+			{
+				using funcType = void(float);
+				vibrateOnceFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateOnce")));
+			}
 
 			vibrateOnceFunc(amplitude);
 		}
 	}
 
-	//Start Vibrate with duration and frequency, amplitude
+	//Start Vibrate with duration and amplitude
 	void VibrateFor(float duration, float amplitude)
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float, float);
-			vibrateForFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateFor")));
+			if (vibrateForFunc == nullptr)
+			{
+				using funcType = void(float, float);
+				vibrateForFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("VibrateFor")));
+			}
 
 			vibrateForFunc(duration, amplitude);
 		}
@@ -316,8 +341,11 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float, float);
-			LEDInSecondsFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDInSeconds")));
+			if (LEDInSecondsFunc == nullptr)
+			{
+				using funcType = void(float, float);
+				LEDInSecondsFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDInSeconds")));
+			}
 
 			LEDInSecondsFunc(amplitude, duration);
 		}
@@ -328,60 +356,82 @@ public:
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float);
-			LEDOnceFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDOnce")));//amplitude->LEDOnce
+			if (LEDOnceFunc == nullptr)
+			{
+				using funcType = void(float);
+				LEDOnceFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDOnce")));
+			}
 
 			LEDOnceFunc(amplitude);
 		}
 	}
 
-	//Start LED  with duration and frequency, amplitude
+	//Start LED with duration and frequency, amplitude
 	void LEDFor(float duration, float frequency, float amplitude)
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(float, float, float);
-			LEDForFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDFor")));
+			if (LEDForFunc == nullptr)
+			{
+				using funcType = void(float, float, float);
+				LEDForFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("LEDFor")));
+			}
 
-			LEDFor(duration, frequency, amplitude);
+			LEDForFunc(duration, frequency, amplitude);
 		}
 	}
 
-	//Get time in seconeds since last calibration
+	//Get time in seconds since last calibration
 	float GetLastCalibratedTimeEscaped()
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = double();
-			GetLastCalibratedTimeEscapedFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("GetLastCalibratedTimeEscaped")));
+			if (GetLastCalibratedTimeEscapedFunc == nullptr)
+			{
+				using funcType = double();
+				GetLastCalibratedTimeEscapedFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("GetLastCalibratedTimeEscaped")));
+			}
 
 			return (float)GetLastCalibratedTimeEscapedFunc();
 		}
 		return 100;
 	}
 
+	//Force connect to device
 	void ForceConnect(const char* sn)
 	{
 		if (handle() != nullptr)
 		{
-			using funcType = void(const char*);
-			ForceConnectFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("ForceConnect")));
+			if (ForceConnectFunc == nullptr)
+			{
+				using funcType = void(const char*);
+				ForceConnectFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("ForceConnect")));
+			}
 
 			ForceConnectFunc(sn);
 		}
 	}
 
+	//Set device lost callback
 	void SetDeviceLostCallback(std::function<void(const char*, const char*, int)> callback)
 	{
 		if (handle() != nullptr)
 		{
 			static std::function<void(const char*, const char*, int)> g_deviceLostCallback = nullptr;
 			g_deviceLostCallback = callback;
-			using funcType = void(void(*)(const char*, const char*, int));
-			SetDeviceLostCallbackFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("SetDeviceLostCallback")));
+			
+			if (SetDeviceLostCallbackFunc == nullptr)
+			{
+				using funcType = void(void(*)(const char*, const char*, int));
+				SetDeviceLostCallbackFunc = reinterpret_cast<funcType*>(FPlatformProcess::GetDllExport(handle(), TEXT("SetDeviceLostCallback")));
+			}
+			
 			SetDeviceLostCallbackFunc([](const char* sn, const char* message, int reason) {
-				g_deviceLostCallback(sn, message, reason);
-				});
+				if (g_deviceLostCallback)
+				{
+					g_deviceLostCallback(sn, message, reason);
+				}
+			});
 		}
 	}
 
@@ -402,7 +452,7 @@ public:
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("Cannot Calibrate"));
+				UE_LOG(LogTemp, Error, TEXT("Cannot Calibrate - function not found in DLL"));
 			}
 		}
 	}
