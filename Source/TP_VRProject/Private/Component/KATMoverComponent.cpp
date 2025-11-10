@@ -1,12 +1,18 @@
-﻿#include "Component/KATMoverComponent.h"
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Component/KATMoverComponent.h"
+#include "KATSDKWarpper.h"
 #include "Camera/CameraComponent.h"
-#include "Component/KATHub.h"
-#include "GameFramework/Actor.h"
 
-
+// Sets default values for this component's properties
 UKATMoverComponent::UKATMoverComponent()
 {
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
+	// ...
 }
 
 // Called when the game starts
@@ -14,8 +20,10 @@ void UKATMoverComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	KATDataHandler = new KATHub(); // KATHubのインスタンスを生成
-	VRCamera = GetOwner()->FindComponentByClass<UCameraComponent>();
+	// ...
+	
+	KATDataHandler = new KATSDKWarpper();
+	VRCamera = Cast<UCameraComponent>(GetOwner()->FindComponentByClass(UCameraComponent::StaticClass()));
 }
 
 
@@ -24,10 +32,8 @@ void UKATMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (KATDataHandler)
-	{
-		HandleKATVRInput(DeltaTime);
-	}
+	// ...
+	HandleKATVRInput(DeltaTime);
 }
 
 void UKATMoverComponent::StartMove()
@@ -40,15 +46,6 @@ void UKATMoverComponent::StopMove()
 	CanMove = false;
 }
 
-void UKATMoverComponent::Calibrate()
-{
-	if (KATDataHandler)
-	{
-		KATDataHandler->Calibrate(nullptr);
-		UE_LOG(LogTemp, Log, TEXT("KATVR Calibration Requested."));
-	}
-}
-
 void UKATMoverComponent::HandleKATVRInput(float DeltaTime)
 {
 	HandleKATVRInputWalk(DeltaTime);
@@ -57,42 +54,59 @@ void UKATMoverComponent::HandleKATVRInput(float DeltaTime)
 
 void UKATMoverComponent::HandleKATVRInputWalk(float DeltaTime)
 {
-	if (!CanMove || !VRCamera) return;
+	if (!CanMove) return;
 
-	auto walkStatus = KATDataHandler->GetWalkStatus(nullptr);
-	if (!walkStatus.treadMillData.connected) return;
+	if (VRCamera == nullptr) return;
 
-	Vector3 MoveSpeed = walkStatus.treadMillData.moveSpeed;
+	Vector3 MoveSpeed = KATDataHandler->GetWalkStatus(nullptr).treadMillData.moveSpeed;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Move: %s"), *Vector3::toFVector(MoveSpeed).ToString()));
 
 	float MoveAmount = MoveSpeed.z;
-	FVector CameraForward = VRCamera->GetForwardVector();
-	CameraForward.Z = 0; // XY平面での移動に限定
-	CameraForward.Normalize();
+	auto cameraForwardVector = FVector(VRCamera->GetForwardVector().X, VRCamera->GetForwardVector().Y, 0).GetSafeNormal();
+	//FootstepCounter += FMath::Abs(DeltaTime * NowSpeed * MoveAmount);
 
-	// DeltaTimeを乗算してフレームレートに依存しない移動を実現
-	FVector Offset = CameraForward * MoveAmount * NowSpeed * DeltaTime;
-
-	GetOwner()->AddActorWorldOffset(Offset, true);
+	GetOwner()->AddActorWorldOffset(cameraForwardVector * MoveAmount * NowSpeed,true);
+	//AddActorWorldOffset(GetActorForwardVector() * MoveAmount * NowSpeed);
 }
 
 void UKATMoverComponent::HandleKATVRRotator()
 {
-	if (!VRCamera) return;
+	FQuat newQuat = Quaternion::unityToUnreal(KATDataHandler->GetWalkStatus(nullptr).treadMillData.bodyRotationRaw);
 
-	auto walkStatus = KATDataHandler->GetWalkStatus(nullptr);
-	if (!walkStatus.treadMillData.connected) return;
+	RotateCharacterByFQuat(newQuat, 0.5f);
+}
 
-	FQuat newQuat = Quaternion::unityToUnreal(walkStatus.treadMillData.bodyRotationRaw);
+void UKATMoverComponent::RotateCharacterByFQuat(FQuat targetQuat, float duration)
+{
+	//if (!bCanRotate) return;
 
-	CurrentRotator = newQuat.Rotator();
+	CurrentRotator = targetQuat.Rotator();
 	FRotator DeltaRotation = CurrentRotator - PreRotator;
 
-	// Yawの回転方向を調整
 	DeltaRotation.Yaw = -DeltaRotation.Yaw;
 
-	// Actorの現在の回転に差分を加える
 	FRotator CharacterTargetRotator = GetOwner()->GetActorRotation() + DeltaRotation;
+
+	FRotator VROffsetRotator = GetRelativeRotation() - DeltaRotation;
+
 	GetOwner()->SetActorRotation(CharacterTargetRotator);
+
+	SetRelativeRotation(VROffsetRotator);
 
 	PreRotator = CurrentRotator;
 }
+
+void UKATMoverComponent::DoCalibration()
+{
+	if (KATDataHandler != nullptr)
+	{
+		KATDataHandler->Calibrate(nullptr);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("KATVR Calibration"));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("KATDataHandler is not initialized"));
+	}
+}
+
