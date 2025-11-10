@@ -4,135 +4,326 @@
 #include "KATSDKWarpper.h"
 #include "Camera/CameraComponent.h"
 
-// Sets default values for this component's properties
+// ログカテゴリの定義
+DEFINE_LOG_CATEGORY_STATIC(LogKATMover, Log, All);
+
+/// 最小速度（この値以下は移動として扱わない）
+static constexpr float MinimumSpeedThreshold = 0.01f;
+
 UKATMoverComponent::UKATMoverComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	CurrentSpeed = 0.0f;
+	KATDataHandler = nullptr;
 }
 
-// Called when the game starts
+UKATMoverComponent::~UKATMoverComponent()
+{
+	// EndPlayが呼ばれなかった場合のセーフ
+	if (KATDataHandler)
+	{
+		delete KATDataHandler;
+		KATDataHandler = nullptr;
+		UE_LOG(LogKATMover, Warning, TEXT("KATDataHandler was not released in EndPlay, cleaned up in destructor"));
+	}
+	UE_LOG(LogKATMover, Log, TEXT("KATMoverComponent destroyed"));
+}
+
 void UKATMoverComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	KATDataHandler = new KATSDKWarpper();
-	VRCamera = Cast<UCameraComponent>(GetOwner()->FindComponentByClass(UCameraComponent::StaticClass()));
-
-	// デバイス接続確認
-	if (KATDataHandler != nullptr)
+	if (!InitializeDevice())
 	{
-		int32 DeviceCount = KATDataHandler->DeviceCount();
-		if (DeviceCount > 0)
+		UE_LOG(LogKATMover, Error, TEXT("Failed to initialize KATVR device"));
+		if (bShowDebugMessages)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("KATVR Devices Found: %d"), DeviceCount));
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to initialize KATVR device"));
 		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No KATVR Devices Found"));
-		}
+		return;
+	}
+	
+	// VRカメラの検索
+	VRCamera = Cast<UCameraComponent>(GetOwner()->FindComponentByClass(UCameraComponent::StaticClass()));
+	if (!VRCamera)
+	{
+		UE_LOG(LogKATMover, Warning, TEXT("VR Camera not found. Movement direction will be based on actor forward vector"));
 	}
 }
 
-// Called every frame
+void UKATMoverComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	ShutdownDevice();
+	Super::EndPlay(EndPlayReason);
+}
+
 void UKATMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	HandleKATVRInput(DeltaTime);
+	if (KATDataHandler)
+	{
+		HandleKATVRInput(DeltaTime);
+	}
 }
+
+//=============================================================================
+// 内部処理関数
+//=============================================================================
+
+bool UKATMoverComponent::InitializeDevice()
+{
+	// 既に初期化されている場合は何もしない
+	if (KATDataHandler)
+	{
+		UE_LOG(LogKATMover, Warning, TEXT("Device already initialized"));
+		return true;
+	}
+
+	try
+	{
+		// 生のポインタを使用（手動でメモリ管理）
+		KATDataHandler = new KATSDKWarpper();
+		
+		if (!KATDataHandler)
+		{
+			UE_LOG(LogKATMover, Error, TEXT("Failed to create KATSDKWarpper"));
+			return false;
+		}
+		
+		// デバイス数をチェック
+		int32 DeviceCount = KATDataHandler->DeviceCount();
+		if (DeviceCount > 0)
+		{
+			UE_LOG(LogKATMover, Log, TEXT("KATVR Devices Found: %d"), DeviceCount);
+			if (bShowDebugMessages)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, 
+					FString::Printf(TEXT("KATVR Devices Found: %d"), DeviceCount));
+			}
+			return true;
+		}
+		else
+		{
+			UE_LOG(LogKATMover, Warning, TEXT("No KATVR Devices Found"));
+			if (bShowDebugMessages)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No KATVR Devices Found"));
+			}
+			// デバイスが見つからなくてもエラーにはしない（後で接続される可能性）
+			return true;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		UE_LOG(LogKATMover, Error, TEXT("Exception during device initialization: %s"), ANSI_TO_TCHAR(e.what()));
+		return false;
+	}
+	catch (...)
+	{
+		UE_LOG(LogKATMover, Error, TEXT("Unknown exception during device initialization"));
+		return false;
+	}
+}
+
+void UKATMoverComponent::ShutdownDevice()
+{
+	if (KATDataHandler)
+	{
+		UE_LOG(LogKATMover, Log, TEXT("Shutting down KATVR device"));
+		delete KATDataHandler;
+		KATDataHandler = nullptr;
+	}
+}
+
+void UKATMoverComponent::HandleKATVRInput(float DeltaTime)
+{
+	if (!KATDataHandler || !CanMove)
+	{
+		CurrentSpeed = 0.0f;
+		return;
+	}
+	
+	// 1回だけデータを取得
+	KATTreadMillMemoryData data = KATDataHandler->GetWalkStatus(nullptr);
+	
+	HandleKATVRInputWalk(DeltaTime, data);
+	HandleKATVRRotator(data);
+}
+
+void UKATMoverComponent::HandleKATVRInputWalk(float DeltaTime, const KATTreadMillMemoryData& data)
+{
+	// 前後移動速度（Z軸）を取得
+	float ForwardSpeed = data.treadMillData.moveSpeed.z;
+	
+	// 移動速度の絶対値を計算
+	float SpeedMagnitude = FMath::Abs(ForwardSpeed);
+	CurrentSpeed = SpeedMagnitude;
+
+	// 移動量が小さすぎる場合は無視
+	if (SpeedMagnitude <= MinimumSpeedThreshold)
+	{
+		return;
+	}
+
+	// 前方ベクトルを決定（VRカメラ優先、なければアクターの前方）
+	FVector HorizontalForward;
+	if (VRCamera)
+	{
+		FVector CameraForward = VRCamera->GetForwardVector();
+		HorizontalForward = FVector(CameraForward.X, CameraForward.Y, 0.0f).GetSafeNormal();
+	}
+	else if (GetOwner())
+	{
+		// フォールバック: アクターの前方ベクトルを使用
+		FVector ActorForward = GetOwner()->GetActorForwardVector();
+		HorizontalForward = FVector(ActorForward.X, ActorForward.Y, 0.0f).GetSafeNormal();
+	}
+	else
+	{
+		UE_LOG(LogKATMover, Error, TEXT("Owner is null, cannot determine movement direction"));
+		return;
+	}
+
+	// 移動を適用
+	FVector Movement = HorizontalForward * ForwardSpeed * MoveSpeed * DeltaTime;
+	GetOwner()->AddActorWorldOffset(Movement, true);
+}
+
+void UKATMoverComponent::HandleKATVRRotator(const KATTreadMillMemoryData& data)
+{
+	// KATVRから回転データを取得
+	FQuat NewQuat = Quaternion::unityToUnreal(data.treadMillData.bodyRotationRaw);
+	
+	RotateCharacterByFQuat(NewQuat, 0.5f);
+}
+
+void UKATMoverComponent::RotateCharacterByFQuat(FQuat TargetQuat, float Duration)
+{
+	if (!GetOwner())
+	{
+		return;
+	}
+
+	// 現在の回転を計算
+	CurrentRotator = TargetQuat.Rotator();
+	FRotator DeltaRotation = CurrentRotator - PreRotator;
+
+	// Yaw軸を反転（KATVRとUnrealの座標系の違いを補正）
+	DeltaRotation.Yaw = -DeltaRotation.Yaw;
+
+	// キャラクターの目標回転を計算
+	FRotator CharacterTargetRotator = GetOwner()->GetActorRotation() + DeltaRotation;
+
+	// VRオフセット回転を計算
+	FRotator VROffsetRotator = GetRelativeRotation() - DeltaRotation;
+
+	// 回転を適用
+	GetOwner()->SetActorRotation(CharacterTargetRotator);
+	SetRelativeRotation(VROffsetRotator);
+
+	// 次回の計算のために保存
+	PreRotator = CurrentRotator;
+}
+
+//=============================================================================
+// 移動制御
+//=============================================================================
 
 void UKATMoverComponent::StartMove()
 {
 	CanMove = true;
+	UE_LOG(LogKATMover, Log, TEXT("Movement enabled"));
 }
 
 void UKATMoverComponent::StopMove()
 {
 	CanMove = false;
+	CurrentSpeed = 0.0f;
+	UE_LOG(LogKATMover, Log, TEXT("Movement disabled"));
 }
 
-void UKATMoverComponent::HandleKATVRInput(float DeltaTime)
-{
-	if (KATDataHandler == nullptr) return;
-	
-	HandleKATVRInputWalk(DeltaTime);
-	HandleKATVRRotator();
-}
-
-void UKATMoverComponent::HandleKATVRInputWalk(float DeltaTime)
-{
-	if (!CanMove) return;
-	if (VRCamera == nullptr) return;
-	if (KATDataHandler == nullptr) return;
-
-	Vector3 MoveSpeed = KATDataHandler->GetWalkStatus(nullptr).treadMillData.moveSpeed;
-
-	float MoveAmount = MoveSpeed.z;
-	auto cameraForwardVector = FVector(VRCamera->GetForwardVector().X, VRCamera->GetForwardVector().Y, 0).GetSafeNormal();
-
-	GetOwner()->AddActorWorldOffset(cameraForwardVector * MoveAmount * NowSpeed, true);
-}
-
-void UKATMoverComponent::HandleKATVRRotator()
-{
-	if (KATDataHandler == nullptr) return;
-
-	FQuat newQuat = Quaternion::unityToUnreal(KATDataHandler->GetWalkStatus(nullptr).treadMillData.bodyRotationRaw);
-	RotateCharacterByFQuat(newQuat, 0.5f);
-}
-
-void UKATMoverComponent::RotateCharacterByFQuat(FQuat targetQuat, float duration)
-{
-	CurrentRotator = targetQuat.Rotator();
-	FRotator DeltaRotation = CurrentRotator - PreRotator;
-
-	DeltaRotation.Yaw = -DeltaRotation.Yaw;
-
-	FRotator CharacterTargetRotator = GetOwner()->GetActorRotation() + DeltaRotation;
-	FRotator VROffsetRotator = GetRelativeRotation() - DeltaRotation;
-
-	GetOwner()->SetActorRotation(CharacterTargetRotator);
-	SetRelativeRotation(VROffsetRotator);
-
-	PreRotator = CurrentRotator;
-}
+//=============================================================================
+// キャリブレーション
+//=============================================================================
 
 void UKATMoverComponent::DoCalibration()
 {
-	if (KATDataHandler != nullptr)
+	if (!KATDataHandler)
 	{
-		KATDataHandler->Calibrate(nullptr);
+		UE_LOG(LogKATMover, Error, TEXT("KATDataHandler is not initialized"));
+		if (bShowDebugMessages)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("KATDataHandler is not initialized"));
+		}
+		return;
+	}
+
+	KATDataHandler->Calibrate(nullptr);
+	UE_LOG(LogKATMover, Log, TEXT("KATVR Calibration executed"));
+	
+	if (bShowDebugMessages)
+	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("KATVR Calibration"));
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("KATDataHandler is not initialized"));
-	}
-}
-
-int32 UKATMoverComponent::GetDeviceCount()
-{
-	if (KATDataHandler != nullptr)
-	{
-		return KATDataHandler->DeviceCount();
-	}
-	return 0;
 }
 
 float UKATMoverComponent::GetLastCalibratedTimeEscaped()
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		return KATDataHandler->GetLastCalibratedTimeEscaped();
 	}
 	return -1.0f;
 }
 
+//=============================================================================
+// デバイス情報
+//=============================================================================
+
+int32 UKATMoverComponent::GetDeviceCount()
+{
+	if (KATDataHandler)
+	{
+		return KATDataHandler->DeviceCount();
+	}
+	return 0;
+}
+
+void UKATMoverComponent::ForceConnectDevice()
+{
+	if (!KATDataHandler)
+	{
+		UE_LOG(LogKATMover, Error, TEXT("KATDataHandler is not initialized"));
+		return;
+	}
+
+	KATDataHandler->ForceConnect(nullptr);
+	UE_LOG(LogKATMover, Log, TEXT("Force connecting to KATVR device..."));
+	
+	if (bShowDebugMessages)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Force connecting to KATVR device..."));
+	}
+}
+
+bool UKATMoverComponent::IsDeviceConnected()
+{
+	if (KATDataHandler)
+	{
+		KATTreadMillMemoryData data = KATDataHandler->GetWalkStatus(nullptr);
+		return data.treadMillData.connected;
+	}
+	return false;
+}
+
+//=============================================================================
+// ハプティックフィードバック（振動）
+//=============================================================================
+
 void UKATMoverComponent::VibrateConst(float Amplitude)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->VibrateConst(Amplitude);
 	}
@@ -140,7 +331,7 @@ void UKATMoverComponent::VibrateConst(float Amplitude)
 
 void UKATMoverComponent::VibrateInSeconds(float Amplitude, float Duration)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->VibrateInSeconds(Amplitude, Duration);
 	}
@@ -148,7 +339,7 @@ void UKATMoverComponent::VibrateInSeconds(float Amplitude, float Duration)
 
 void UKATMoverComponent::VibrateOnce(float Amplitude)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->VibrateOnce(Amplitude);
 	}
@@ -156,15 +347,19 @@ void UKATMoverComponent::VibrateOnce(float Amplitude)
 
 void UKATMoverComponent::VibrateFor(float Duration, float Amplitude)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->VibrateFor(Duration, Amplitude);
 	}
 }
 
+//=============================================================================
+// LED制御
+//=============================================================================
+
 void UKATMoverComponent::LEDConst(float Amplitude)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->LEDConst(Amplitude);
 	}
@@ -172,7 +367,7 @@ void UKATMoverComponent::LEDConst(float Amplitude)
 
 void UKATMoverComponent::LEDInSeconds(float Amplitude, float Duration)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->LEDInSeconds(Amplitude, Duration);
 	}
@@ -180,7 +375,7 @@ void UKATMoverComponent::LEDInSeconds(float Amplitude, float Duration)
 
 void UKATMoverComponent::LEDOnce(float Amplitude)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->LEDOnce(Amplitude);
 	}
@@ -188,27 +383,8 @@ void UKATMoverComponent::LEDOnce(float Amplitude)
 
 void UKATMoverComponent::LEDFor(float Duration, float Frequency, float Amplitude)
 {
-	if (KATDataHandler != nullptr)
+	if (KATDataHandler)
 	{
 		KATDataHandler->LEDFor(Duration, Frequency, Amplitude);
 	}
-}
-
-void UKATMoverComponent::ForceConnectDevice()
-{
-	if (KATDataHandler != nullptr)
-	{
-		KATDataHandler->ForceConnect(nullptr);
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Force connecting to KATVR device..."));
-	}
-}
-
-bool UKATMoverComponent::IsDeviceConnected()
-{
-	if (KATDataHandler != nullptr)
-	{
-		KATTreadMillMemoryData data = KATDataHandler->GetWalkStatus(nullptr);
-		return data.treadMillData.connected;
-	}
-	return false;
 }
