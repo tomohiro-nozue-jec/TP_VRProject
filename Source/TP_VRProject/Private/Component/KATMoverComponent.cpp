@@ -7,9 +7,6 @@
 // ログカテゴリの定義
 DEFINE_LOG_CATEGORY_STATIC(LogKATMover, Log, All);
 
-/// 最小速度（この値以下は移動として扱わない）
-static constexpr float MinimumSpeedThreshold = 0.01f;
-
 UKATMoverComponent::UKATMoverComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -159,12 +156,6 @@ void UKATMoverComponent::HandleKATVRInputWalk(float DeltaTime, const KATTreadMil
 	// 移動速度の絶対値を計算
 	float SpeedMagnitude = FMath::Abs(ForwardSpeed);
 	CurrentSpeed = SpeedMagnitude;
-
-	// 移動量が小さすぎる場合は無視
-	if (SpeedMagnitude <= MinimumSpeedThreshold)
-	{
-		return;
-	}
 
 	// 前方ベクトルを決定（VRカメラ優先、なければアクターの前方）
 	FVector HorizontalForward;
