@@ -269,7 +269,7 @@ private:
 	/// <summary>
 	/// 移動速度の倍率（m/s）
 	/// </summary>
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0.0", ClampMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0.0", ClampMax = "1000.0"))
 	float MoveSpeed = 5.0f;
 
 	/// <summary>
