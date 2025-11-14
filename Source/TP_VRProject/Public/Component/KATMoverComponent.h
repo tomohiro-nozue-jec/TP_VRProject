@@ -51,6 +51,26 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//=============================================================================
+	// ユーティリティ
+	//=============================================================================
+	
+	/// <summary>
+	/// ワールド内の最初のKATMoverComponentを取得
+	/// </summary>
+	/// <param name="WorldContextObject">ワールドコンテキスト</param>
+	/// <returns>見つかったKATMoverComponent、見つからない場合はnullptr</returns>
+	UFUNCTION(BlueprintPure, Category = "KATVR|Utility", meta = (WorldContext = "WorldContextObject"))
+	static UKATMoverComponent* FindKATMoverComponent(const UObject* WorldContextObject);
+	
+	/// <summary>
+	/// 指定したアクターからKATMoverComponentを取得
+	/// </summary>
+	/// <param name="Actor">検索対象のアクター</param>
+	/// <returns>見つかったKATMoverComponent、見つからない場合はnullptr</returns>
+	UFUNCTION(BlueprintPure, Category = "KATVR|Utility")
+	static UKATMoverComponent* GetKATMoverComponentFromActor(AActor* Actor);
+
+	//=============================================================================
 	// 移動制御
 	//=============================================================================
 	
@@ -94,7 +114,6 @@ public:
 	/// 最後のキャリブレーションからの経過時間を取得
 	/// </summary>
 	/// <returns>経過時間（秒単位）。デバイスが初期化されていない場合は-1.0</returns>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Calibration")
 	float GetLastCalibratedTimeEscaped();
 
 	//=============================================================================
@@ -105,13 +124,11 @@ public:
 	/// 接続されているKATVRデバイスの数を取得
 	/// </summary>
 	/// <returns>デバイス数。デバイスが初期化されていない場合は0</returns>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Device")
 	int32 GetDeviceCount();
 
 	/// <summary>
 	/// KATVRデバイスに強制接続を試みる
 	/// </summary>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Device")
 	void ForceConnectDevice();
 
 	/// <summary>
@@ -129,7 +146,6 @@ public:
 	/// 一定の振幅で連続振動を開始
 	/// </summary>
 	/// <param name="Amplitude">振動の強さ（0.0～1.0）。0で停止</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
 	void VibrateConst(float Amplitude);
 
 	/// <summary>
@@ -137,14 +153,12 @@ public:
 	/// </summary>
 	/// <param name="Amplitude">振動の強さ（0.0～1.0）</param>
 	/// <param name="Duration">振動時間（秒）</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
 	void VibrateInSeconds(float Amplitude, float Duration);
 
 	/// <summary>
 	/// 1回だけ短く振動
 	/// </summary>
 	/// <param name="Amplitude">振動の強さ（0.0～1.0）</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
 	void VibrateOnce(float Amplitude);
 
 	/// <summary>
@@ -152,7 +166,6 @@ public:
 	/// </summary>
 	/// <param name="Duration">振動時間（秒）</param>
 	/// <param name="Amplitude">振動の強さ（0.0～1.0）</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|Haptics")
 	void VibrateFor(float Duration, float Amplitude);
 
 	//=============================================================================
@@ -163,7 +176,6 @@ public:
 	/// 一定の輝度でLEDを点灯し続ける
 	/// </summary>
 	/// <param name="Amplitude">輝度（0.0～1.0）。0で消灯</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
 	void LEDConst(float Amplitude);
 
 	/// <summary>
@@ -171,14 +183,12 @@ public:
 	/// </summary>
 	/// <param name="Amplitude">輝度（0.0～1.0）</param>
 	/// <param name="Duration">点灯時間（秒）</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
 	void LEDInSeconds(float Amplitude, float Duration);
 
 	/// <summary>
 	/// LEDを1回だけ短く点灯
 	/// </summary>
 	/// <param name="Amplitude">輝度（0.0～1.0）</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
 	void LEDOnce(float Amplitude);
 
 	/// <summary>
@@ -187,7 +197,6 @@ public:
 	/// <param name="Duration">点滅時間（秒）</param>
 	/// <param name="Frequency">点滅周波数（Hz）</param>
 	/// <param name="Amplitude">輝度（0.0～1.0）</param>
-	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
 	void LEDFor(float Duration, float Frequency, float Amplitude);
 
 private:
