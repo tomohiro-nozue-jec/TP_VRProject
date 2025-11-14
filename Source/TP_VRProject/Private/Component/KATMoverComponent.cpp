@@ -3,6 +3,7 @@
 #include "Component/KATMoverComponent.h"
 #include "KATSDKWarpper.h"
 #include "Camera/CameraComponent.h"
+#include "EngineUtils.h"
 
 // ログカテゴリの定義
 DEFINE_LOG_CATEGORY_STATIC(LogKATMover, Log, All);
@@ -378,4 +379,49 @@ void UKATMoverComponent::LEDFor(float Duration, float Frequency, float Amplitude
 	{
 		KATDataHandler->LEDFor(Duration, Frequency, Amplitude);
 	}
+}
+
+//=============================================================================
+// 静的ユーティリティ関数
+//=============================================================================
+
+UKATMoverComponent* UKATMoverComponent::FindKATMoverComponent(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject)
+	{
+		return nullptr;
+	}
+
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	// ワールド内の全てのアクターを検索
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (Actor)
+		{
+			UKATMoverComponent* Component = Actor->FindComponentByClass<UKATMoverComponent>();
+			if (Component)
+			{
+				return Component;
+			}
+		}
+	}
+
+	UE_LOG(LogKATMover, Warning, TEXT("KATMoverComponent not found in world"));
+	return nullptr;
+}
+
+UKATMoverComponent* UKATMoverComponent::GetKATMoverComponentFromActor(AActor* Actor)
+{
+	if (!Actor)
+	{
+		return nullptr;
+	}
+
+	return Actor->FindComponentByClass<UKATMoverComponent>();
 }

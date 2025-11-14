@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 #include "KATSDKWarpper.h"
@@ -127,59 +127,62 @@ class UKATVRUniversalSDKBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Quaternion Mul Vector", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
+	// ユーティリティ
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Quaternion Mul Vector", Keywords = "treadmill KAT"), Category = "KATVR|Utility")
 	static FVector QuaterMul(const FQuat& q, const FVector& v);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Connected KAT Treadmill Count", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
+	// デバイス情報
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Connected KAT Treadmill Count", Keywords = "treadmill KAT"), Category = "KATVR|Device")
 	static int DeviceCount();
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get KAT Treadmill Device Description", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get KAT Treadmill Device Description", Keywords = "treadmill KAT"), Category = "KATVR|Device")
 	static FKATDeviceDesc GetDevicesDesc(int index);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get KAT Treadmill Walk Status", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
-	static FKATTreadMillMemoryData GetWalkStatus(const FString& sn = "");
-
-	//UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get VR Framework Path", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
-	//static FInstallPaths GetVRPath();
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Raw Vibrate Interface", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
-	static void Vibrate(const FString& sn, float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Raw LED Interface", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
-	static void LED(const FString& sn, float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate With Const Amplitude", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	VibrateConst(float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED With Const Amplitude", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	LEDConst(float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate In Seconds", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	VibrateInSeconds(float amplitude, float duration);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate Once", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	VibrateOnce(float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate For", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	VibrateFor(float duration, float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED In Seconds", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	LEDInSeconds(float amplitude, float duration);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED Once", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	LEDOnce(float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED For", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static void	LEDFor(float duration, float frequency, float amplitude);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Last Calibrated Time Escaped", Keywords = "treadmill KAT Extension"), Category = "KATVRExtensionSDK")
-	static float GetLastCalibratedTimeEscaped();
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Force Connect", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Force Connect", Keywords = "treadmill KAT"), Category = "KATVR|Device")
 	static void ForceConnect(const FString& sn);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Device Lost Callback", Keywords = "treadmill KAT"), Category = "KATVRUniversalSDK")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Device Lost Callback", Keywords = "treadmill KAT"), Category = "KATVR|Device")
 	static void SetDeviceLostCallback(FBPPinDeviceLost OnDeviceLost);
+
+	// 移動データ
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get KAT Treadmill Walk Status", Keywords = "treadmill KAT"), Category = "KATVR|Movement")
+	static FKATTreadMillMemoryData GetWalkStatus(const FString& sn = "");
+
+	// キャリブレーション
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Last Calibrated Time Escaped", Keywords = "treadmill KAT Extension"), Category = "KATVR|Calibration")
+	static float GetLastCalibratedTimeEscaped();
+
+	// 振動（Haptics）
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Raw Vibrate Interface", Keywords = "treadmill KAT"), Category = "KATVR|Haptics")
+	static void Vibrate(const FString& sn, float amplitude);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate With Const Amplitude", Keywords = "treadmill KAT Extension"), Category = "KATVR|Haptics")
+	static void	VibrateConst(float amplitude);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate In Seconds", Keywords = "treadmill KAT Extension"), Category = "KATVR|Haptics")
+	static void	VibrateInSeconds(float amplitude, float duration);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate Once", Keywords = "treadmill KAT Extension"), Category = "KATVR|Haptics")
+	static void	VibrateOnce(float amplitude);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Vibrate For", Keywords = "treadmill KAT Extension"), Category = "KATVR|Haptics")
+	static void	VibrateFor(float duration, float amplitude);
+
+	// LED制御
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Raw LED Interface", Keywords = "treadmill KAT"), Category = "KATVR|LED")
+	static void LED(const FString& sn, float amplitude);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED With Const Amplitude", Keywords = "treadmill KAT Extension"), Category = "KATVR|LED")
+	static void	LEDConst(float amplitude);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED In Seconds", Keywords = "treadmill KAT Extension"), Category = "KATVR|LED")
+	static void	LEDInSeconds(float amplitude, float duration);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED Once", Keywords = "treadmill KAT Extension"), Category = "KATVR|LED")
+	static void	LEDOnce(float amplitude);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LED For", Keywords = "treadmill KAT Extension"), Category = "KATVR|LED")
+	static void	LEDFor(float duration, float frequency, float amplitude);
 	
 private:
 	static KATSDKWarpper sdkWarpper;
