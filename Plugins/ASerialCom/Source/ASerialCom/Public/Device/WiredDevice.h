@@ -9,7 +9,10 @@
 class DeviceCommunicator;
 
 /**
- * 
+ * ASerialで有線デバイスを表すクラス
+ * 注意：Windowsのみ対応,別環境にするとプラグインが使えないため、使用しないでください。
+ * もし他の環境でゲームをビルドしたい場合、#if PLATFORM_WINDOWSを使うかここを無効にしてください。
+ * #if PLATFORM_WINDOWS / #endifで囲むて、中にUFUNCTION(),UPROPERTY()などがあるとエラーになるため、コメントを使ってください。
  */
 UCLASS(BlueprintType, Category = "ASerial")
 class ASERIALCOM_API UWiredDevice : public UObject, public FTickableGameObject
