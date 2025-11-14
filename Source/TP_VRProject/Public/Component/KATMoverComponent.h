@@ -175,7 +175,7 @@ public:
 	void LEDInSeconds(float Amplitude, float Duration);
 
 	/// <summary>
-	/// LEDを1回だけ短く点灯（通知に最適）
+	/// LEDを1回だけ短く点灯
 	/// </summary>
 	/// <param name="Amplitude">輝度（0.0～1.0）</param>
 	UFUNCTION(BlueprintCallable, Category = "KATVR|LED")
