@@ -30,12 +30,18 @@ DeviceCommunicator::~DeviceCommunicator()
 bool DeviceCommunicator::Init()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Device thread initialized."));
+	// デバイスを作成
 	CreateDevice();
+	// 自動に接続
 	if (Connect() == ExecutionResult::Fail)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Device connect failed!"));
 	}
-	return false;
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("Device connect success!"));
+	}
+	return true;
 }
 
 uint32 DeviceCommunicator::Run()
@@ -84,11 +90,13 @@ void DeviceCommunicator::Exit()
 void DeviceCommunicator::Pause()
 {
 	bIsPause = true;
+	UE_LOG(LogTemp, Warning, TEXT("Device thread paused."));
 }
 
 void DeviceCommunicator::ReStart()
 {
 	bIsPause = false;
+	UE_LOG(LogTemp, Warning, TEXT("Device thread restarted."));
 }
 
 void DeviceCommunicator::ChangeFrequency(float NewFrequency)
@@ -138,7 +146,7 @@ bool DeviceCommunicator::IsConnecting()
 	return true;
 }
 
-void DeviceCommunicator::ReceiveCmd(int Cmd)
+void DeviceCommunicator::ReceiveCmd(uint8_t Cmd)
 {
 	CommandQueue.Enqueue(Cmd);
 }
@@ -157,19 +165,37 @@ void DeviceCommunicator::HandleCmd()
 	switch (ProcessState)
 	{
 		case EProcessState::Idle:
+		{
 			if (!CommandQueue.IsEmpty())
 				ProcessState = EProcessState::Sending;
 			break;
+		}
 		case EProcessState::Sending:
 		{
 			// 処理するコマンドをゲット
-			// ここでコマンドを送ったかどうかを確認するのみ、データを貰う際にもう一度同じコマンドが必要。そのためDequeueではなくPeekを使う
+			// ここでコマンドを送ったかどうかを確認するのみ、データを貰う際に同じコマンドを送る必要がある。そのためDequeueではなくPeekを使う
 			uint8_t Command;
 			CommandQueue.Peek(Command);
 			// デバイスにコマンドを送ったら
 			if (SendCommand(Command))
 			{
-				ProcessState = EProcessState::WaitingResponse;
+				UE_LOG(LogTemp, Display, TEXT("Send Command %u Success"), Command);
+				ASerialDataStruct::ASerialData RecievedData;
+				if (RecieveData(RecievedData))
+				{
+					// もし直接データが貰ったなら
+					// 貰ったデータをキューに収納
+					DataQueue->Enqueue(RecievedData);
+					// コマンドを削除
+					CommandQueue.Pop();
+					// 次のコマンドを待つ状態に移行
+					ProcessState = EProcessState::Idle;
+				}
+				else
+				{
+					// 貰ってない場合、レスポンスを待つ状態に移行
+					ProcessState = EProcessState::WaitingResponse;
+				}
 			}
 			break;
 		}	
@@ -185,27 +211,8 @@ void DeviceCommunicator::HandleCmd()
 					// 更新された
 					if (RecievedData.data[0] == 1)
 					{
-						ProcessState = EProcessState::Receiving;
+						ProcessState = EProcessState::Sending;
 					}
-				}
-			}
-			break;
-		}
-		case EProcessState::Receiving:
-		{
-			// RecieveDataが失敗した場合、もう一回やるので、確実にデータが貰った後にコマンドを消す
-			uint8_t Command;
-			CommandQueue.Peek(Command);
-			if (SendCommand(Command))
-			{
-				ASerialDataStruct::ASerialData RecievedData;
-				if (RecieveData(RecievedData))
-				{
-					// 貰ったデータをキューに収納
-					DataQueue->Enqueue(RecievedData);
-					// コマンドを削除
-					CommandQueue.Pop();
-					ProcessState = EProcessState::Idle;
 				}
 			}
 			break;
