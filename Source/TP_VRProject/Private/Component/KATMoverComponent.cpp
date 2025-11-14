@@ -166,7 +166,7 @@ void UKATMoverComponent::HandleKATVRInputWalk(float DeltaTime, const KATTreadMil
 	}
 	else if (GetOwner())
 	{
-		// フォールバック: アクターの前方ベクトルを使用
+		// フォールバック(アクターの前方ベクトルを使用)
 		FVector ActorForward = GetOwner()->GetActorForwardVector();
 		HorizontalForward = FVector(ActorForward.X, ActorForward.Y, 0.0f).GetSafeNormal();
 	}
