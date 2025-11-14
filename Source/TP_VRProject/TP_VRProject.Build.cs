@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 using UnrealBuildTool;
 
@@ -10,7 +10,14 @@ public class TP_VRProject : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+        // Windowsだけ
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+            PublicDependencyModuleNames.AddRange(new string[] { "ASerialCom" });
+        // Androidだけ
+        else if (Target.Platform == UnrealTargetPlatform.Android)
+            PublicDependencyModuleNames.AddRange(new string[] { });
+
+        PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

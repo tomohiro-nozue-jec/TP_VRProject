@@ -25,7 +25,7 @@ class UWiredDevice;
 *	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
 */
 UCLASS(BlueprintType, Category = "ASerial")
-class UASerialComBPLibrary : public UBlueprintFunctionLibrary
+class ASERIALCOM_API UASerialComBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 

@@ -22,8 +22,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	// FTickableGameObjectを継承しているので、以下の二つの関数が必要
 	virtual TStatId GetStatId() const override;
-
 	virtual bool IsTickableInEditor() const override;
 
 	/// <summary>
@@ -104,16 +104,7 @@ private:
 	/// <param name="Size">データサイズ</param>
 	/// <returns>数値</returns>
 	template<typename T>
-	T ConvertData(const uint8_t* Data, int Size)
-	{
-		//Data[0]が上位バイト, Data[1]が下位バイト
-		T Result = 0;
-		for (int i = 0; i < Size; ++i)
-		{
-			Result |= (Data[i] << (8 * (Size - 1 - i)));
-		}
-		return Result;
-	}
+	T ConvertData(const uint8_t* Data, int Size);
 
 	/// <summary>
 	/// 貰ったデータを加工する

@@ -10,8 +10,14 @@ UASerialComBPLibrary::UASerialComBPLibrary(const FObjectInitializer& ObjectIniti
 
 }
 
-UWiredDevice* UASerialComBPLibrary::CreateDevice(int ID, int Version, const FString& Name)
+UWiredDevice* UASerialComBPLibrary::CreateDevice(int DeviceID, int DeviceVersion, const FString& Name)
 {
-	return NewObject<UWiredDevice>();
+	UWiredDevice* Device = NewObject<UWiredDevice>();
+	if (Device)
+	{
+		Device->InitCommunicator(DeviceID, DeviceVersion, Name);
+		return Device;
+	}
+	return nullptr;
 }
 
