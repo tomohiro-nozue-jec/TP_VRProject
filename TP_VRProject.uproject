@@ -52,10 +52,6 @@
 			"Name": "KATVRUniversalSDK",
 			"Enabled": true
 		},
-		{
-			"Name": "SERIALCOM",
-			"Enabled": true
-		}
 	],
 	"TargetPlatforms": [
 		"Android",
