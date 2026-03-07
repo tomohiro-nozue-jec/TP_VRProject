@@ -9,7 +9,7 @@ public class TP_VRProject : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         // 共通
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "KATVRUniversalSDK" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "KATVRUniversalSDK", "BleGoodies" });
 
         // Windowsだけ
         if (Target.Platform == UnrealTargetPlatform.Win64)
