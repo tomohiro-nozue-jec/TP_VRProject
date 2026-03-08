@@ -34,25 +34,25 @@ void AEventTrigger::BeginPlay()
 				}
 			}
 		}
-		BindToSwitchDelegates();
+		BindToConditionSourceDelegates();
 	}
 }
 
-// スイッチのデリゲートにバインドする関数
-void AEventTrigger::BindToSwitchDelegates()
+// TriggerDataに設定されたすべてのスイッチの状態変化イベントにバインドする関数
+void AEventTrigger::BindToConditionSourceDelegates()
 {
-	// TriggerDataに設定されたすべてのスイッチに対して、状態変化イベントにバインド
+	// TriggerDataに設定されたすべての条件ソースに対して、状態変化イベントにバインド
 	for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 	{
-		// スイッチアクターを取得
-		AActor* SwitchActor = ConditionSource.SourceActor.Get();
-		if (SwitchActor)
+		// 条件ソースアクターを取得
+		AActor* ConditionSourceActor = ConditionSource.SourceActor.Get();
+		if (ConditionSourceActor)
 		{
-			// スイッチコンポーネントを取得
-			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			// 条件ソースコンポーネントを取得
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(ConditionSourceActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
 			if (ConditionSourceComp)
 			{
-			// スイッチの状態変化イベントにバインド
+			// 条件ソースの状態変化イベントにバインド
 			ConditionSourceComp->OnConditionStateChanged.AddDynamic(this, &AEventTrigger::OnConditionStateChanged);
 			ConditionSourceComp->SourceBehavior = ConditionSource.SourceBehavior;
 			}

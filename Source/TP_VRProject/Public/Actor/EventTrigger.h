@@ -37,10 +37,10 @@ private:
 	UPROPERTY()
 	bool bLastConditionMet = false;
 
-	// スイッチの状態変化にバインドする関数
-	void BindToSwitchDelegates();
+	// 条件ソースコンポーネントからのデリゲートにバインドする関数
+	void BindToConditionSourceDelegates();
 
-	// スイッチの状態が変化したときに呼び出される関数
+	// 条件ソースの状態変化イベントに対応する関数
 	UFUNCTION()
 	void OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bConditionMet);
 
