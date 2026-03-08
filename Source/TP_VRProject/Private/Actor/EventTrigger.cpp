@@ -53,7 +53,7 @@ void AEventTrigger::BindToSwitchDelegates()
 			if (ConditionSourceComp)
 			{
 			// スイッチの状態変化イベントにバインド
-			ConditionSourceComp->OnSwitchStateChanged.AddDynamic(this, &AEventTrigger::OnSwitchStateChanged);
+			ConditionSourceComp->OnConditionStateChanged.AddDynamic(this, &AEventTrigger::OnConditionStateChanged);
 			ConditionSourceComp->SourceBehavior = ConditionSource.SourceBehavior;
 			}
 		}
@@ -61,7 +61,7 @@ void AEventTrigger::BindToSwitchDelegates()
 }
 
 // スイッチの状態が変わったときに呼ばれる関数
-void AEventTrigger::OnSwitchStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bIsOn)
+void AEventTrigger::OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bIsOn)
 {
 	// 現在のパズル条件を評価
 	bool bCurrentConditionMet = EvaluateCondition();

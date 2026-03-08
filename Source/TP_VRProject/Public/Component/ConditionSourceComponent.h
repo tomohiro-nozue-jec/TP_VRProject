@@ -16,7 +16,7 @@ enum class ESourceBehavior : uint8
 };
 
 // スイッチの状態が変化したときに呼び出されるデリゲート
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSwitchStateChanged, UConditionSourceComponent*, ConditionSourceComponent, bool, bIsOn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnConditionStateChanged, UConditionSourceComponent*, ConditionSourceComponent, bool, bIsOn);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -47,7 +47,7 @@ public:
 
 	// スイッチの状態が変化したときに呼び出されるイベント
 	UPROPERTY(BlueprintAssignable, Category = "Switch")
-	FOnSwitchStateChanged OnSwitchStateChanged;
+	FOnConditionStateChanged OnConditionStateChanged;
 
 	// スイッチの状態を切り替える関数
 	UFUNCTION(BlueprintCallable, Category = "Switch")

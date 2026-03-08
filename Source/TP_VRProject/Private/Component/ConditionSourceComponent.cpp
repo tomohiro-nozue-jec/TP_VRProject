@@ -41,7 +41,7 @@ void UConditionSourceComponent::ToggleSwitch()
         // トグル式：状態を反転
         bIsOn = !bIsOn;
         // 状態変更を通知
-        OnSwitchStateChanged.Broadcast(this, bIsOn);
+        OnConditionStateChanged.Broadcast(this, bIsOn);
     }
     else if (SourceBehavior == ESourceBehavior::LatchOn)
     {
@@ -50,7 +50,7 @@ void UConditionSourceComponent::ToggleSwitch()
         {
             bIsOn = true;
             // 状態変更を通知
-            OnSwitchStateChanged.Broadcast(this, bIsOn);
+            OnConditionStateChanged.Broadcast(this, bIsOn);
         }
     }
 }
