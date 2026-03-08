@@ -124,7 +124,7 @@ bool AEventTrigger::EvaluateCondition()
 {
 	if (!TriggerData) return false;
 
-	if (TriggerData->SwitchCondition == ESwitchCondition::AND)
+	if (TriggerData->ConditionLogic == EConditionLogic::AND)
 	{
 		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 		{
@@ -138,7 +138,7 @@ bool AEventTrigger::EvaluateCondition()
 		}
 		return true;
 	}
-	else if (TriggerData->SwitchCondition == ESwitchCondition::OR)
+	else if (TriggerData->ConditionLogic == EConditionLogic::OR)
 	{
 		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 		{

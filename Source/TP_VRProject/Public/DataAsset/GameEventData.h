@@ -9,7 +9,7 @@
 
 // 複数のスイッチが満たすべき条件
 UENUM(BlueprintType)
-enum class ESwitchCondition : uint8
+enum class EConditionLogic : uint8
 {
 	AND UMETA(DisplayName = "AND (All Switches)"),
 	OR UMETA(DisplayName = "OR (Any Switch)"),
@@ -72,6 +72,6 @@ public :
 
 	// スイッチが押されたと見なすための条件
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	ESwitchCondition SwitchCondition;
+	EConditionLogic ConditionLogic;
 
 };
