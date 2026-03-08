@@ -42,7 +42,7 @@ private:
 
 	// スイッチの状態が変化したときに呼び出される関数
 	UFUNCTION()
-	void OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bIsOn);
+	void OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bConditionMet);
 
 	// 条件を評価して、必要ならイベントをトリガーする関数
 	bool EvaluateCondition();

@@ -39,18 +39,18 @@ void UConditionSourceComponent::ToggleSwitch()
     if (SourceBehavior == ESourceBehavior::Toggle)
     {
         // トグル式：状態を反転
-        bIsOn = !bIsOn;
+        bConditionMet = !bConditionMet;
         // 状態変更を通知
-        OnConditionStateChanged.Broadcast(this, bIsOn);
+        OnConditionStateChanged.Broadcast(this, bConditionMet);
     }
     else if (SourceBehavior == ESourceBehavior::LatchOn)
     {
         // ラッチ式：まだオフの場合のみオンにし、それ以降は状態を維持
-        if (!bIsOn)
+        if (!bConditionMet)
         {
-            bIsOn = true;
+            bConditionMet = true;
             // 状態変更を通知
-            OnConditionStateChanged.Broadcast(this, bIsOn);
+            OnConditionStateChanged.Broadcast(this, bConditionMet);
         }
     }
 }

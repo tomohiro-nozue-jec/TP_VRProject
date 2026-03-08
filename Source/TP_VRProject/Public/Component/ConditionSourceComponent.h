@@ -16,7 +16,7 @@ enum class ESourceBehavior : uint8
 };
 
 // スイッチの状態が変化したときに呼び出されるデリゲート
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnConditionStateChanged, UConditionSourceComponent*, ConditionSourceComponent, bool, bIsOn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnConditionStateChanged, UConditionSourceComponent*, ConditionSourceComponent, bool, bConditionMet);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -39,7 +39,7 @@ public:
 public:
 	// スイッチの状態を表す変数
 	UPROPERTY(BlueprintReadWrite, Category = "Switch")
-	bool bIsOn = false;
+	bool bConditionMet = false;
 
 	// スイッチの挙動タイプを外部から設定できるようにする
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")

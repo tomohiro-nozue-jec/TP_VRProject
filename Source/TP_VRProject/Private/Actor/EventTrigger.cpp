@@ -61,7 +61,7 @@ void AEventTrigger::BindToSwitchDelegates()
 }
 
 // スイッチの状態が変わったときに呼ばれる関数
-void AEventTrigger::OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bIsOn)
+void AEventTrigger::OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bConditionMet)
 {
 	// 現在のパズル条件を評価
 	bool bCurrentConditionMet = EvaluateCondition();
@@ -131,7 +131,7 @@ bool AEventTrigger::EvaluateCondition()
 			AActor* SwitchActor = ConditionSource.SourceActor.Get();
 			if (!SwitchActor) continue;
 			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
-			if (ConditionSourceComp && !ConditionSourceComp->bIsOn)
+			if (ConditionSourceComp && !ConditionSourceComp->bConditionMet)
 			{
 				return false;
 			}
@@ -145,7 +145,7 @@ bool AEventTrigger::EvaluateCondition()
 			AActor* SwitchActor = ConditionSource.SourceActor.Get();
 			if (!SwitchActor) continue;
 			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
-			if (ConditionSourceComp && ConditionSourceComp->bIsOn)
+			if (ConditionSourceComp && ConditionSourceComp->bConditionMet)
 			{
 				return true;
 			}
