@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Component/SwitchComponent.h"
+#include "Component/ConditionSourceComponent.h"
 #include "GameEventData.generated.h"
 
-// 複数のスイッチが満たすべき条件
+//条件の組み合わせロジックを定義するEnum
 UENUM(BlueprintType)
-enum class ESwitchCondition : uint8
+enum class EConditionLogic : uint8
 {
-	AND UMETA(DisplayName = "AND (All Switches)"),
-	OR UMETA(DisplayName = "OR (Any Switch)"),
+	AND UMETA(DisplayName = "AND (All Conditions)"),
+	OR UMETA(DisplayName = "OR (Any Conditions)"),
 };
 
 
@@ -25,17 +25,17 @@ enum class ETargetType : uint8
 	Stateful UMETA(DisplayName = "Stateful (ON/OFF Control)"),
 };
 
-// スイッチと、そのタイプを関連付ける構造体
+// 条件ソースの挙動を定義するEnum
 USTRUCT(BlueprintType)
-struct FEventSwitch
+struct FConditionSource
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	TSoftObjectPtr<AActor> SwitchActor;
+	TSoftObjectPtr<AActor> SourceActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	ESwitchType SwitchType;
+	ESourceBehavior SourceBehavior;
 };
 
 // ターゲットアクターと、そのタイプを関連付ける構造体
@@ -66,12 +66,12 @@ public :
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	TArray<FEventTarget> EventTargets;
 
-	// イベントをトリガーするスイッチの配列と、そのタイプ
+	// 条件ソースへのソフト参照と、その挙動のセット。条件ソースは、スイッチ、プレイヤーの位置、特定のアクションの完了など、様々なゲーム内要素を指すことができます。
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	TArray<FEventSwitch> EventSwitches;
+	TArray<FConditionSource> ConditionSources;
 
-	// スイッチが押されたと見なすための条件
+	// 条件ソースの状態をどのように組み合わせてイベントをトリガーするかを定義するロジック。ANDはすべての条件が満たされたとき、ORはどれか一つの条件が満たされたときにイベントがトリガーされます。
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	ESwitchCondition SwitchCondition;
+	EConditionLogic ConditionLogic;
 
 };
