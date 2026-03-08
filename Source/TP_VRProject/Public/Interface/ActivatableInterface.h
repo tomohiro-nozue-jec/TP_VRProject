@@ -21,7 +21,7 @@ class TP_VRPROJECT_API IActivatableInterface
 	GENERATED_BODY()
 
 public:
-	// Blueprintで実装可能な関数。アクティベーションイベントを処理する。
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Activation")
-	void OnActivate(AActor* Activator, bool bIsOn);
+// Blueprintで実装可能な関数。アクティベーションイベントを処理する。
+UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Activation")
+void OnActivate(bool bConditionMet, AActor* Activator);
 };

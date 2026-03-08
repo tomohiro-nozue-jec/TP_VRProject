@@ -83,7 +83,7 @@ void AEventTrigger::OnConditionStateChanged(UConditionSourceComponent* Condition
 				{
 					if (TargetActor->GetClass()->ImplementsInterface(UActivatableInterface::StaticClass()))
 					{
-						IActivatableInterface::Execute_OnActivate(TargetActor, ConditionSourceComponent->GetOwner(), true);
+						IActivatableInterface::Execute_OnActivate(TargetActor,true, ConditionSourceComponent->GetOwner());
 					}
 				}
 				break;
@@ -92,11 +92,11 @@ void AEventTrigger::OnConditionStateChanged(UConditionSourceComponent* Condition
 				// OneShot: 条件が満たされた瞬間、かつまだ実行されていなければ実行
 				if (bConditionJustMet && !OneShotActivationStates.FindRef(TargetActor))
 				{
-					if (TargetActor->GetClass()->ImplementsInterface(UActivatableInterface::StaticClass()))
-					{
-						IActivatableInterface::Execute_OnActivate(TargetActor, ConditionSourceComponent->GetOwner(), true);
-					}
-					OneShotActivationStates.Add(TargetActor, true);
+				if (TargetActor->GetClass()->ImplementsInterface(UActivatableInterface::StaticClass()))
+				{
+					IActivatableInterface::Execute_OnActivate(TargetActor, true, ConditionSourceComponent->GetOwner());
+				}
+				OneShotActivationStates.Add(TargetActor, true);
 				}
 				break;
 
