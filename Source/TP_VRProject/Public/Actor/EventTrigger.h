@@ -7,6 +7,9 @@
 #include "DataAsset/GameEventData.h"
 #include "EventTrigger.generated.h"
 
+// Forward declaration
+class UConditionSourceComponent;
+
 UCLASS()
 class TP_VRPROJECT_API AEventTrigger : public AActor
 {
@@ -39,7 +42,7 @@ private:
 
 	// スイッチの状態が変化したときに呼び出される関数
 	UFUNCTION()
-	void OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn);
+	void OnSwitchStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bIsOn);
 
 	// 条件を評価して、必要ならイベントをトリガーする関数
 	bool EvaluateCondition();

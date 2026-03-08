@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Component/SwitchComponent.h"
+#include "Component/ConditionSourceComponent.h"
 #include "GameEventData.generated.h"
 
 // 複数のスイッチが満たすべき条件
@@ -27,15 +27,15 @@ enum class ETargetType : uint8
 
 // スイッチと、そのタイプを関連付ける構造体
 USTRUCT(BlueprintType)
-struct FEventSwitch
+struct FConditionSource
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	TSoftObjectPtr<AActor> SwitchActor;
+	TSoftObjectPtr<AActor> SourceActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	ESwitchType SwitchType;
+	ESourceBehavior SourceBehavior;
 };
 
 // ターゲットアクターと、そのタイプを関連付ける構造体
@@ -68,7 +68,7 @@ public :
 
 	// イベントをトリガーするスイッチの配列と、そのタイプ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
-	TArray<FEventSwitch> EventSwitches;
+	TArray<FConditionSource> ConditionSources;
 
 	// スイッチが押されたと見なすための条件
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")

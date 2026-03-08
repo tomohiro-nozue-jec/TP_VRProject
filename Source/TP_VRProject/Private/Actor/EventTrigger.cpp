@@ -4,7 +4,7 @@
 #include "Actor/EventTrigger.h"
 #include "Interface/ActivatableInterface.h"
 #include "Interface/StatefulActivatableInterface.h"
-#include "Component/SwitchComponent.h"
+#include "Component/ConditionSourceComponent.h"
 
 
 // Sets default values
@@ -41,23 +41,27 @@ void AEventTrigger::BeginPlay()
 // スイッチのデリゲートにバインドする関数
 void AEventTrigger::BindToSwitchDelegates()
 {
-	for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
+	// TriggerDataに設定されたすべてのスイッチに対して、状態変化イベントにバインド
+	for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 	{
-		AActor* SwitchActor = EventSwitch.SwitchActor.Get();
+		// スイッチアクターを取得
+		AActor* SwitchActor = ConditionSource.SourceActor.Get();
 		if (SwitchActor)
 		{
-			USwitchComponent* SwitchComp = Cast<USwitchComponent>(SwitchActor->GetComponentByClass(USwitchComponent::StaticClass()));
-			if (SwitchComp)
+			// スイッチコンポーネントを取得
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			if (ConditionSourceComp)
 			{
-				SwitchComp->OnSwitchStateChanged.AddDynamic(this, &AEventTrigger::OnSwitchStateChanged);
-				SwitchComp->SwitchType = EventSwitch.SwitchType;
+			// スイッチの状態変化イベントにバインド
+			ConditionSourceComp->OnSwitchStateChanged.AddDynamic(this, &AEventTrigger::OnSwitchStateChanged);
+			ConditionSourceComp->SourceBehavior = ConditionSource.SourceBehavior;
 			}
 		}
 	}
 }
 
 // スイッチの状態が変わったときに呼ばれる関数
-void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool bIsOn)
+void AEventTrigger::OnSwitchStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bIsOn)
 {
 	// 現在のパズル条件を評価
 	bool bCurrentConditionMet = EvaluateCondition();
@@ -66,6 +70,7 @@ void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool
 	bool bConditionJustMet = !bLastConditionMet && bCurrentConditionMet;
 	bool bConditionJustLost = bLastConditionMet && !bCurrentConditionMet;
 
+	// TriggerDataに設定されたすべてのターゲットアクターに対して、条件の変化に応じてイベントをトリガー
 	for (const FEventTarget& EventTarget : TriggerData->EventTargets)
 	{
 		if (AActor* TargetActor = EventTarget.TargetActor.Get())
@@ -76,7 +81,10 @@ void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool
 				// EveryTime: 条件が満たされた瞬間のみ実行
 				if (bConditionJustMet)
 				{
-					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
+					if (TargetActor->GetClass()->ImplementsInterface(UActivatableInterface::StaticClass()))
+					{
+						IActivatableInterface::Execute_OnActivate(TargetActor, ConditionSourceComponent->GetOwner(), true);
+					}
 				}
 				break;
 
@@ -84,7 +92,10 @@ void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool
 				// OneShot: 条件が満たされた瞬間、かつまだ実行されていなければ実行
 				if (bConditionJustMet && !OneShotActivationStates.FindRef(TargetActor))
 				{
-					IActivatableInterface::Execute_OnActivate(TargetActor, SwitchComponent->GetOwner(), true);
+					if (TargetActor->GetClass()->ImplementsInterface(UActivatableInterface::StaticClass()))
+					{
+						IActivatableInterface::Execute_OnActivate(TargetActor, ConditionSourceComponent->GetOwner(), true);
+					}
 					OneShotActivationStates.Add(TargetActor, true);
 				}
 				break;
@@ -94,7 +105,10 @@ void AEventTrigger::OnSwitchStateChanged(USwitchComponent* SwitchComponent, bool
 				if (bConditionJustMet || bConditionJustLost)
 				{
 					// SetActivationStateインターフェースを呼び出し
-					IStatefulActivatableInterface::Execute_SetActivationState(TargetActor, bCurrentConditionMet, SwitchComponent->GetOwner());
+					if (TargetActor->GetClass()->ImplementsInterface(UStatefulActivatableInterface::StaticClass()))
+					{
+						IStatefulActivatableInterface::Execute_SetActivationState(TargetActor, bCurrentConditionMet, ConditionSourceComponent->GetOwner());
+					}
 				}
 				break;
 			}
@@ -112,12 +126,12 @@ bool AEventTrigger::EvaluateCondition()
 
 	if (TriggerData->SwitchCondition == ESwitchCondition::AND)
 	{
-		for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
+		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 		{
-			AActor* SwitchActor = EventSwitch.SwitchActor.Get();
+			AActor* SwitchActor = ConditionSource.SourceActor.Get();
 			if (!SwitchActor) continue;
-			USwitchComponent* SwitchComp = Cast<USwitchComponent>(SwitchActor->GetComponentByClass(USwitchComponent::StaticClass()));
-			if (SwitchComp && !SwitchComp->bIsOn)
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			if (ConditionSourceComp && !ConditionSourceComp->bIsOn)
 			{
 				return false;
 			}
@@ -126,12 +140,12 @@ bool AEventTrigger::EvaluateCondition()
 	}
 	else if (TriggerData->SwitchCondition == ESwitchCondition::OR)
 	{
-		for (const FEventSwitch& EventSwitch : TriggerData->EventSwitches)
+		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 		{
-			AActor* SwitchActor = EventSwitch.SwitchActor.Get();
+			AActor* SwitchActor = ConditionSource.SourceActor.Get();
 			if (!SwitchActor) continue;
-			USwitchComponent* SwitchComp = Cast<USwitchComponent>(SwitchActor->GetComponentByClass(USwitchComponent::StaticClass()));
-			if (SwitchComp && SwitchComp->bIsOn)
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			if (ConditionSourceComp && ConditionSourceComp->bIsOn)
 			{
 				return true;
 			}
