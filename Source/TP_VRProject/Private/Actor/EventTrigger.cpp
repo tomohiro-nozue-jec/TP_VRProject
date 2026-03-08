@@ -38,7 +38,7 @@ void AEventTrigger::BeginPlay()
 	}
 }
 
-// TriggerDataに設定されたすべてのスイッチの状態変化イベントにバインドする関数
+// 条件ソースコンポーネントの状態変化イベントにバインドする関数
 void AEventTrigger::BindToConditionSourceDelegates()
 {
 	// TriggerDataに設定されたすべての条件ソースに対して、状態変化イベントにバインド
@@ -60,7 +60,7 @@ void AEventTrigger::BindToConditionSourceDelegates()
 	}
 }
 
-// スイッチの状態が変わったときに呼ばれる関数
+// 条件ソースの状態変化イベントに対応する関数
 void AEventTrigger::OnConditionStateChanged(UConditionSourceComponent* ConditionSourceComponent, bool bConditionMet)
 {
 	// 現在のパズル条件を評価
@@ -128,9 +128,9 @@ bool AEventTrigger::EvaluateCondition()
 	{
 		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 		{
-			AActor* SwitchActor = ConditionSource.SourceActor.Get();
-			if (!SwitchActor) continue;
-			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			AActor* ConditionSourceActor = ConditionSource.SourceActor.Get();
+			if (!ConditionSourceActor) continue;
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(ConditionSourceActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
 			if (ConditionSourceComp && !ConditionSourceComp->bConditionMet)
 			{
 				return false;
@@ -142,9 +142,9 @@ bool AEventTrigger::EvaluateCondition()
 	{
 		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
 		{
-			AActor* SwitchActor = ConditionSource.SourceActor.Get();
-			if (!SwitchActor) continue;
-			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(SwitchActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			AActor* ConditionSourceActor = ConditionSource.SourceActor.Get();
+			if (!ConditionSourceActor) continue;
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(ConditionSourceActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
 			if (ConditionSourceComp && ConditionSourceComp->bConditionMet)
 			{
 				return true;

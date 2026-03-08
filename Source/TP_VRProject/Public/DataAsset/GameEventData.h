@@ -66,11 +66,11 @@ public :
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	TArray<FEventTarget> EventTargets;
 
-	// イベントをトリガーするスイッチの配列と、そのタイプ
+	// 条件ソースへのソフト参照と、その挙動のセット。条件ソースは、スイッチ、プレイヤーの位置、特定のアクションの完了など、様々なゲーム内要素を指すことができます。
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	TArray<FConditionSource> ConditionSources;
 
-	// スイッチが押されたと見なすための条件
+	// 条件ソースの状態をどのように組み合わせてイベントをトリガーするかを定義するロジック。ANDはすべての条件が満たされたとき、ORはどれか一つの条件が満たされたときにイベントがトリガーされます。
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Event")
 	EConditionLogic ConditionLogic;
 
