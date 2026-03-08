@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ConditionSourceComponent.generated.h"
 
-// スイッチのタイプを定義するEnum
+// 条件ソースのタイプを定義するEnum
 // BP_EventTriggerによってGameEventDataから設定される
 UENUM(BlueprintType)
 enum class ESourceBehavior : uint8
@@ -15,7 +15,7 @@ enum class ESourceBehavior : uint8
 	LatchOn UMETA(DisplayName = "Latch On"),
 };
 
-// スイッチの状態が変化したときに呼び出されるデリゲート
+// 条件の状態が変化したときに呼び出されるデリゲート
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnConditionStateChanged, UConditionSourceComponent*, ConditionSourceComponent, bool, bConditionMet);
 
 
@@ -37,19 +37,19 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	// スイッチの状態を表す変数
-	UPROPERTY(BlueprintReadWrite, Category = "Switch")
+	// 条件が満たされているかどうかを示すプロパティ
+	UPROPERTY(BlueprintReadWrite, Category = "Condition")
 	bool bConditionMet = false;
 
-	// スイッチの挙動タイプを外部から設定できるようにする
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
+	// 条件ソースの動作タイプを指定するプロパティ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
 	ESourceBehavior SourceBehavior = ESourceBehavior::Toggle;
 
-	// スイッチの状態が変化したときに呼び出されるイベント
-	UPROPERTY(BlueprintAssignable, Category = "Switch")
+	// 条件の状態が変化したときに呼び出されるイベント
+	UPROPERTY(BlueprintAssignable, Category = "Condition")
 	FOnConditionStateChanged OnConditionStateChanged;
 
-	// スイッチの状態を切り替える関数
-	UFUNCTION(BlueprintCallable, Category = "Switch")
-	void ToggleSwitch();
+	// 条件をアクティブにする関数（BP_EventTriggerから呼び出される）
+	UFUNCTION(BlueprintCallable, Category = "Condition")
+	void ActivateCondition();
 };

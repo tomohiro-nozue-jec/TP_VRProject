@@ -32,8 +32,8 @@ void UConditionSourceComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-// スイッチの状態を切り替える関数
-void UConditionSourceComponent::ToggleSwitch()
+// 条件をアクティブにする関数（BP_EventTriggerから呼び出される）
+void UConditionSourceComponent::ActivateCondition()
 {
     // SourceBehaviorに応じてロジックを分岐
     if (SourceBehavior == ESourceBehavior::Toggle)
