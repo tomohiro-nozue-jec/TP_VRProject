@@ -23,5 +23,5 @@ class TP_VRPROJECT_API IStatefulActivatableInterface
 public:
 	// Blueprintで実装可能な関数。アクティベーション状態を設定する。
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Activation")
-	void SetActivationState(bool bNewState, AActor* Activator);
+	void SetActivationState(bool bConditionMet, AActor* Activator);
 };
